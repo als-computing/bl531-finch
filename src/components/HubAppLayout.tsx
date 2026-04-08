@@ -25,6 +25,8 @@ export type HubAppLayoutProps = {
     classNameMainContentInnerContainer?: string;
     /** Additional CSS classes applied to the header element. */
     classNameHeader?: string;
+    /** Additional CSS classes applied to the header logo image element. */
+    classNameHeaderLogoImage?: string;
     /** Additional CSS classes applied to the sidebar element. */
     classNameSidebar?: string;
     /** Additional CSS classes applied to the active sidebar link. */
@@ -43,6 +45,7 @@ export default function HubAppLayout ( {
     classNameMainContentInnerContainer,
     classNameHeader,
     classNameHeaderTitle,
+    classNameHeaderLogoImage,
     classNameSidebar,
     classNameSidebarActiveLink,
     classNameSidebarInactiveLink,
@@ -64,6 +67,7 @@ return (
             logoIcon={headerLogoIcon}
             className={classNameHeader}
             classNameTitle={classNameHeaderTitle}
+            classNameImage={classNameHeaderLogoImage}
         />
         <HubMainContent 
             routes={routes}

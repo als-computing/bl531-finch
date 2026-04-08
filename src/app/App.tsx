@@ -2,50 +2,92 @@ import './App.css';
 import '@blueskyproject/tiled/style.css';
 
 import { FinchConfigProvider } from './FinchConfigProvider';
-import AboutFinchPage from './pages/AboutFinchPage';
-import AllComponentsPage from './pages/AllComponentsPage';
-import TestPage from './pages/TestPage';
-import Documentation from './pages/Documentation';
+import DashboardSummaryPage from './pages/DashboardSummaryPage';
+import DeviceControlPage from './pages/DeviceControlPage';
+import QServerPage from './pages/QServerPage';
+import CameraPage from './pages/CameraPage';
+import GoogleDocsPage from './pages/GoogleDocsPage';
+import ServiceStatusPage from './pages/ServiceStatusPage';
+import EnergyScanPage from './pages/EnergyScanPage';
+import AngleScanPage from './pages/AngleScanPage';
 
 import HubAppLayout from '@/components/HubAppLayout';
 
 import { RouteItem } from '@/types/navigationRouterTypes';
 
-import { House, Table, TestTube, Question } from "@phosphor-icons/react";
+import { House, Joystick, ImageSquare, StackPlus, Camera, GoogleLogo, Terminal, Barcode } from "@phosphor-icons/react";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { finchIcons } from '@/assets/icons';
+import TiledHeatmapSelector from '@/features/TiledHeatmapSelector';
 
 const queryClient = new QueryClient();
 
 function App() {
   const routes:RouteItem[] = [
     {
-      element:<AboutFinchPage/>, 
+      element:<DashboardSummaryPage/>, 
       path: "/", 
-      label: "About", 
+      label: "Home", 
       icon: <House size={32}/>, 
       isBackgroundTransparent: true
-    },
+      },
     {
-      element: <AllComponentsPage />, 
-      path: '/components', 
-      label: "Review", 
-      icon: <Table size={32} />, 
-      classNameContainer: 'bg-slate-50'
-    },
-    {
-      element: <TestPage />, 
-      path: '/test', 
-      label: "Test", 
-      icon: <TestTube size={32} />, 
+      element: <DeviceControlPage />, 
+      path: '/control', 
+      label: "Control", 
+      icon: <Joystick size={32} />, 
       isBackgroundTransparent: true
     },
     {
-      element: <Documentation />,
-      path: '/documentation',
-      label: "Help",
-      icon: <Question size={32} />,
+      element: <TiledHeatmapSelector />,
+      path: '/data',
+      label: 'Data',
+      icon: <ImageSquare size={32} />,
+      isBackgroundTransparent: true,
+    },
+    {
+      element: <QServerPage />,
+      path: '/qserver',
+      label: 'QServer',
+      icon: <StackPlus size={32} />,
+      isBackgroundTransparent: true,
+    },
+    {
+      element: <CameraPage />,
+      path: '/camera',
+      label: 'Camera',
+      icon: <Camera size={32} />,
+      isBackgroundTransparent: true,
+    },
+    {
+      element: <GoogleDocsPage />,
+      path: '/docs',
+      label: 'Docs',
+      icon: <GoogleLogo size={32} />,
+      isBackgroundTransparent: false,
+    },
+    {
+      element: <ServiceStatusPage />,
+      path: '/status',
+      label: 'Status',
+      icon: <Terminal size={32} />,
+      isBackgroundTransparent: true,
+    },
+    {
+      element: <EnergyScanPage />,
+      path: '/energy-scan',
+      label: 'Energy Scan',
+      icon: <Barcode size={32} />,
+      isBackgroundTransparent: true,
+    },
+    {
+      element: <AngleScanPage />,
+      path: '/angle-scan',
+      label: 'Angle Scan',
+      icon: <Barcode size={32} />,
+      isBackgroundTransparent: true,
     }
+
   ]
   return (
     <FinchConfigProvider
@@ -61,8 +103,10 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <HubAppLayout 
           routes={routes} 
-          headerTitle='Finch Dev Mode' 
-          headerLogoIcon={<div className="h-12 aspect-square text-sky-950">{finchIcons.finchPortraitFrameless}</div>} 
+          headerTitle='Beamline 5.3.1' 
+          headerLogoUrl='/images/finchWithBeaker.png' 
+          classNameHeaderLogoImage="h-14 aspect-auto"
+
         />
       </QueryClientProvider>
     </FinchConfigProvider>

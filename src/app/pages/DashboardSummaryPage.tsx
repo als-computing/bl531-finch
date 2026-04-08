@@ -7,7 +7,7 @@ import TIFFContainer from "@/components/Camera/TIFFContainer";
 import QServerPlanMonitor from "@/features/QServerPlanMonitor";
 import IFrame from "@/components/IFrame"
 
-export default function BL531Dashboard() {
+export default function DashboardSummaryPage() {
     // return (
     //     <div className="flex flex-col w-full h-full gap-4">
     //         <Bento className="bg-white/40 p-8 rounded-md items-start justify-around flex-shrink-0 gap-x-0 gap-y-8">
@@ -57,11 +57,11 @@ export default function BL531Dashboard() {
                 </div>
                 <div className="flex flex-col">
                     <p className="text-lg text-white text-center">Pilatus 300k</p>
-                    <TIFFContainer prefix='pilatus300k' enableControlPanel={true} enableSettings={false} canvasSize="medium" />
+                    <TIFFContainer prefix='pilatus300k' enableControlPanel={true} enableSettings={false} canvasSize="medium" cameraImageWsUrl="ws://localhost:8002/tiff-socket"/>
                 </div>
                 <div className="flex flex-col">
                     <p className="text-lg text-white text-center">Pilatus 1M</p>
-                    <TIFFContainer prefix='13PIL1' enableControlPanel={true} enableSettings={false} canvasSize="medium" />
+                    <TIFFContainer prefix='13PIL1' enableControlPanel={true} enableSettings={false} canvasSize="medium" cameraImageWsUrl="ws://localhost:8002/tiff-socket"/>
                 </div>
                 <div className="flex flex-col">
                     <p className="text-lg text-white text-center">Basler Sample Camera</p>
@@ -76,7 +76,7 @@ export default function BL531Dashboard() {
                     <QServerPlanMonitor className="h-[32rem]"/>
                 </div>
             </Bento>
-            <IFrame url="http://192.168.10.156:8080" isSizeResponsive={true}/>
+            <IFrame url="http://192.168.10.156:8080" isSizeResponsive={true} className="min-h-96"/>
         </div>
             
     )

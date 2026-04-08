@@ -11,7 +11,7 @@ export type TiledHeatmapSelectorProps = {
 export default function TiledHeatmapSelector({tiledBaseUrl}: TiledHeatmapSelectorProps) {
     const [ selectedUrl, setSelectedUrl ] = useState<string | null>(null);
     return (
-        <section className="flex flex-wrap justify-around gap-4">
+        <section className="flex flex-wrap justify-around gap-4 text-slate-900">
             <Tiled tiledBaseUrl={tiledBaseUrl} onSelectCallback={(links)=> setSelectedUrl(links.self)} size="medium" pageLimit={30}/>
             <PlotlyHeatmapTiled url={selectedUrl || ""} />
         </section>
