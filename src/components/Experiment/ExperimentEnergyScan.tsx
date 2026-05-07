@@ -203,10 +203,10 @@ export default function ExperimentEnergyScan({
                                     <ExperimentExecutePlanButtonGeneric
                                         planName="energy_scan"
                                         kwargs={{
-                                            detectors: ["det", "diode"],
-                                            motor: "mono_energy",
-                                            start: startEnergy,
-                                            stop: stopEnergy,
+                                            detectors: ["det1M","diode"],
+                                            mono: "mono_energy",
+                                            start_eV: startEnergy,
+                                            stop_eV: stopEnergy,
                                             num: numPoints,
                                             md: {exact_plan_name: "energy_scan", user: user}
                                         }}

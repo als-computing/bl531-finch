@@ -7,7 +7,7 @@ export default function EnergyScanPage() {
     const { blueskyRunId, isRunFinished } = useTiledMostRecentDetImage();
     console.log(`[ScatteringPage] blueskyRunId: ${blueskyRunId}, isRunFinished: ${isRunFinished}`);
     return (
-        <div className="flex flex-col p-4 space-y-6">
+        <div className="flex flex-col p-4 space-y-6 text-slate-700">
             <div className="min-w-96">
                 <ExperimentEnergyScan 
                     onSuccess={(response) => {

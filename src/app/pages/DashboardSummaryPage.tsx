@@ -57,11 +57,11 @@ export default function DashboardSummaryPage() {
                 </div>
                 <div className="flex flex-col">
                     <p className="text-lg text-white text-center">Pilatus 300k</p>
-                    <TIFFContainer prefix='pilatus300k' enableControlPanel={true} enableSettings={false} canvasSize="medium" cameraImageWsUrl="ws://localhost:8002/tiff-socket"/>
+                    <TIFFContainer prefix='pilatus300k' enableControlPanel={true} enableSettings={false} canvasSize="medium" cameraImageWsUrl="ws://192.168.10.155:8002/tiff-socket"/>
                 </div>
                 <div className="flex flex-col">
                     <p className="text-lg text-white text-center">Pilatus 1M</p>
-                    <TIFFContainer prefix='13PIL1' enableControlPanel={true} enableSettings={false} canvasSize="medium" cameraImageWsUrl="ws://localhost:8002/tiff-socket"/>
+                    <TIFFContainer prefix='13PIL1' enableControlPanel={true} enableSettings={false} canvasSize="medium" cameraImageWsUrl="ws://192.168.10.155:8002/tiff-socket"/>
                 </div>
                 <div className="flex flex-col">
                     <p className="text-lg text-white text-center">Basler Sample Camera</p>
