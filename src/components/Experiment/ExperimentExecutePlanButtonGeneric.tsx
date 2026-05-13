@@ -37,7 +37,9 @@ export default function ExperimentExecutePlanButtonGeneric({
     onError
 }: ExperimentExecutePlanButtonGenericProps) {
     const plansQuery = usePlansAllowedQuery();
-    const queueQuery = useQueueQuery();
+    const queueQuery = useQueueQuery({
+        refetchInterval: 1000,
+    });
     const executeMutation = useExecuteQueueItemMutation();
 
     const isPlanAvailable = plansQuery.data?.success && plansQuery.data?.plans_allowed
