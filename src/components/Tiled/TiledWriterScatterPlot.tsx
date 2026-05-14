@@ -77,6 +77,7 @@ export default function TiledWriterScatterPlot({
                 </p>
             )}
             <TiledScatterPlot
+                blueskyRunId={blueskyRunId}
                 path={tiledPath}
                 tiledTrace={tiledTrace}
                 partition={partition}

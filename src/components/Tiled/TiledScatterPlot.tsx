@@ -7,6 +7,8 @@ import { getTableDataAsJson } from "@blueskyproject/tiled";
 import { TiledPlotlyTrace } from "./types/tiledPlotTypes";
 
 type TiledScatterPlotProps = {
+    /**Bluesky Run ID saved into Tiled */
+    blueskyRunId: string;
     /** Trace descriptor mapping Plotly fields to table column names for x and y axes. */
     tiledTrace: TiledPlotlyTrace;
     /** Tiled path to the table node (e.g. `'/uid/streams/primary/internal'`). `null` shows a waiting message. */
@@ -25,7 +27,7 @@ type TiledScatterPlotProps = {
     plotClassName?: string;
 }
 
-export default function TiledScatterPlot({ tiledTrace, path, partition=0, tiledBaseUrl, enablePolling, pollingIntervalMs=1000, className, plotClassName }: TiledScatterPlotProps) {
+export default function TiledScatterPlot({blueskyRunId, tiledTrace, path, partition=0, tiledBaseUrl, enablePolling, pollingIntervalMs=1000, className, plotClassName }: TiledScatterPlotProps) {
     const { data, isLoading, error } = useQuery({
         queryKey: ['tiled', 'table', path],
         queryFn: () => getTableDataAsJson(path ? path : '', partition, tiledBaseUrl),
@@ -74,14 +76,16 @@ export default function TiledScatterPlot({ tiledTrace, path, partition=0, tiledB
 
     return (
         <div className={cn("flex-grow h-[30rem] p-4 rounded-lg bg-white min-w-0 shadow-md", className)}>
-            <div className="text-sm text-gray-600 h-8">
-                {getStatusText()}
-            </div>
+            <span className="flex items-center h-8 space-x-8">
+                <p className="text-lg">{blueskyRunId}</p>
+                <p className="text-sm text-gray-600">{getStatusText()}</p>
+            </span>
             <PlotlyScatter 
                 data={plotData} 
                 xAxisTitle={xName} 
                 yAxisTitle={yName} 
                 className={plotClassName} 
+                title={blueskyRunId}
             />
         </div>
     );

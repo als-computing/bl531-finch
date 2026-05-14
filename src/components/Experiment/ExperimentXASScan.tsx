@@ -9,6 +9,7 @@ import ExperimentHistory from "./ExperimentHistory";
 import { ClockCounterClockwise, PersonSimpleRun, Images, ChartLine } from "@phosphor-icons/react";
 import { PostItemAddResponse } from "@/api/qServer/types";
 import { cn } from "@/lib/utils";
+import { start } from "repl";
 
 type ExperimentXASScanProps = {
     /** Additional CSS class names to apply to the root container. */
@@ -20,7 +21,11 @@ type ExperimentXASScanProps = {
     /** The base Tiled url */
     tiledBaseUrl?: string;
 };
-
+const localStorageEnergyStart = localStorage.getItem("xas_start_energy") ?? 9000;
+const localStorageEnergyStop = localStorage.getItem("xas_stop_energy") ?? 10000;
+const localStorageNumPoints = localStorage.getItem("xas_num_points") ?? 10;
+const localStorageRoiLow = localStorage.getItem("xas_roi_low") ?? 1800;
+const localStorageRoiHigh = localStorage.getItem("xas_roi_high") ?? 2750;
 export default function ExperimentXASScan({ 
     className,
     onSuccess,
@@ -29,18 +34,25 @@ export default function ExperimentXASScan({
 }: ExperimentXASScanProps) {
     // Angle scan form state
     const [user, setUser] = useState<string>(localStorage.getItem("angle_scan_user") ?? "");
-    const [startEnergy, setStartEnergy] = useState<number | "">(9000);
-    const [stopEnergy, setStopEnergy] = useState<number | "">(10000);
-    const [roiLow, setRoiLow] = useState<number | "">(1800);
-    const [roiHigh, setRoiHigh] = useState<number | "">(2750);
-    const [numPoints, setNumPoints] = useState<number | "">(10);
+    const [startEnergy, setStartEnergy] = useState<number | "">(localStorageEnergyStart as number);
+    const [stopEnergy, setStopEnergy] = useState<number | "">(localStorageEnergyStop as number);
+    const [roiLow, setRoiLow] = useState<number | "">(localStorageRoiLow as number);
+    const [roiHigh, setRoiHigh] = useState<number | "">(localStorageRoiHigh as number);
+    const [numPoints, setNumPoints] = useState<number | "">(localStorageNumPoints as number);
+    const [sample, setSample] = useState<string>(localStorage.getItem("xas_sample") ?? "");
     const [executedItemUid, setExecutedItemUid] = useState<string>("");
     const [viewMode, setViewMode] = useState<'form' | 'history'>('form');
     const [blueskyRunId, setBlueskyRunId] = useState<string>("");
 
     useEffect(() => {
         localStorage.setItem("angle_scan_user", user);
-    }, [user]);
+        localStorage.setItem("xas_start_energy", startEnergy.toString());
+        localStorage.setItem("xas_stop_energy", stopEnergy.toString());
+        localStorage.setItem("xas_num_points", numPoints.toString());
+        localStorage.setItem("xas_roi_low", roiLow.toString());
+        localStorage.setItem("xas_roi_high", roiHigh.toString());
+        localStorage.setItem("xas_sample", sample);
+    }, [user, startEnergy, stopEnergy, numPoints, sample, roiHigh, roiLow]);
 
     const getBlueskyRunList = useGetBlueskyRunList();
 
@@ -105,6 +117,11 @@ export default function ExperimentXASScan({
         const value = e.target.value;
         setRoiHigh(value === '' ? '' : Number(value));
     };
+
+    const handleSampleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setSample(value);
+    }
 
     const handleSuccess = async (response: PostItemAddResponse) => {
         console.log("XAS scan executed successfully!", response);
@@ -174,6 +191,16 @@ export default function ExperimentXASScan({
                                         onChange={(e) => setUser(e.target.value)}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                                         placeholder="Enter user name"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Sample:</label>
+                                    <input
+                                        type="text"
+                                        value={sample}
+                                        onChange={handleSampleChange}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                        placeholder="Enter sample name"
                                     />
                                 </div>
                                 
@@ -249,7 +276,7 @@ export default function ExperimentXASScan({
                                             start_eV: startEnergy,
                                             stop_eV: stopEnergy,
                                             num: numPoints,
-                                            md: {exact_plan_name: "xas_scan", user: user}
+                                            md: {exact_plan_name: "xas_scan", user: user, sample: sample}
                                         }}
                                         onSuccess={handleSuccess}
                                         onError={handleError}
