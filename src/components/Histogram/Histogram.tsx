@@ -21,6 +21,8 @@ type HistogramProps = {
     arrayPV: string;
     /** EPICS PV name for the acquire control (1 = start, 0 = stop). */
     acquirePV: string;
+    /** EPICS PV name for the exposure setting (default value is in seconds) */
+    exposurePV: string;
     /** When `true`, renders the `HistogramDeviceController` below the plot. */
     showDeviceController?: boolean;
     /** When `true`, renders plot settings controls inside `HistogramPlot`. */
@@ -38,9 +40,11 @@ type HistogramProps = {
     /** Number of significant figures for sum displays in the plot. Defaults to `6`. */
     precision?: number;
 }
-export default function Histogram({ arrayPV, acquirePV, showDeviceController, showPlotSettings, classNameContainer, classNameDeviceController, classNameHistogramPlot, classNamePlotSettings, demo, precision }: HistogramProps) {
-    const deviceList = useMemo(() => (demo ? [] : [arrayPV, acquirePV]), [demo, arrayPV, acquirePV]);
+export default function Histogram({ arrayPV, acquirePV, exposurePV, showDeviceController, showPlotSettings, classNameContainer, classNameDeviceController, classNameHistogramPlot, classNamePlotSettings, demo, precision }: HistogramProps) {
+    const deviceList = useMemo(() => (demo ? [] : [arrayPV, acquirePV, exposurePV]), [demo, arrayPV, acquirePV, exposurePV]);
     const { devices, handleSetValueRequest } = useOphydPVSocket(deviceList);
+    const acquireDevice = devices[acquirePV];
+    const exposureDevice = devices[exposurePV];
 
     const baseRef = useRef<number[]>(generateDemoBase());
     const [demoData, setDemoData] = useState<number[]>(() => baseRef.current);
@@ -69,11 +73,14 @@ export default function Histogram({ arrayPV, acquirePV, showDeviceController, sh
     const handleStopAcquisition = useCallback(() => {
         handleSetValueRequest(acquirePV, 0);
     }, [acquirePV, handleSetValueRequest]);
+    const handleSetExposure = useCallback((newValue:number) => {
+        handleSetValueRequest(exposurePV, newValue);
+    }, [exposurePV, handleSetValueRequest])
 
     return (
         <section className={cn("flex flex-col items-center justify-start gap-4 p-2 bg-slate-200 text-slate-700 min-w-fit h-fit overflow-x-auto overflow-y-hidden rounded-lg shadow-lg", classNameContainer)}>
             <HistogramPlot showPlotSettings={showPlotSettings} className={classNameHistogramPlot} classNameSettings={classNamePlotSettings} arrayData={arrayData} precision={precision} />
-            {showDeviceController && <HistogramDeviceController acquireDevice={devices[acquirePV]} handleStartAcquisition={handleStartAcquisition} handleStopAcquisition={handleStopAcquisition} className={classNameDeviceController} />}
+            {showDeviceController && <HistogramDeviceController acquireDevice={devices[acquirePV]} exposureDevice={exposureDevice} handleStartAcquisition={handleStartAcquisition} handleStopAcquisition={handleStopAcquisition} handleSetExposure={handleSetExposure} className={classNameDeviceController} />}
         </section>
     )
 }

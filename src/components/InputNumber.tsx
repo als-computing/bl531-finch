@@ -52,7 +52,7 @@ export default function InputNumber({ label, onChange, warningMessage, isWarning
 
     return (
         <label className={cn(`${labelPosition === 'right' && 'flex-row-reverse'} w-full max-w-[60rem] flex justify-between relative`, className)} {...props}>
-            {label && <span className='mx-1 font-light'>{label}</span>}
+            {label && <span className='mx-1 font-light w-12'>{label}</span>}
             <input
                 name={name ? name : 'input-number'}
                 type="number" 
