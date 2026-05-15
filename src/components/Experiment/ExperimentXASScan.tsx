@@ -21,11 +21,11 @@ type ExperimentXASScanProps = {
     /** The base Tiled url */
     tiledBaseUrl?: string;
 };
-const localStorageEnergyStart = localStorage.getItem("xas_start_energy") ?? 9000;
-const localStorageEnergyStop = localStorage.getItem("xas_stop_energy") ?? 10000;
-const localStorageNumPoints = localStorage.getItem("xas_num_points") ?? 10;
-const localStorageRoiLow = localStorage.getItem("xas_roi_low") ?? 1800;
-const localStorageRoiHigh = localStorage.getItem("xas_roi_high") ?? 2750;
+const getLocalStorageEnergyStart = ()=> localStorage.getItem("xas_start_energy") ?? 9000;
+const getLocalStorageEnergyStop = ()=> localStorage.getItem("xas_stop_energy") ?? 10000;
+const getLocalStorageNumPoints = ()=> localStorage.getItem("xas_num_points") ?? 10;
+const getLocalStorageRoiLow = ()=> localStorage.getItem("xas_roi_low") ?? 1800;
+const getLocalStorageRoiHigh = ()=> localStorage.getItem("xas_roi_high") ?? 2750;
 export default function ExperimentXASScan({ 
     className,
     onSuccess,
@@ -34,11 +34,11 @@ export default function ExperimentXASScan({
 }: ExperimentXASScanProps) {
     // Angle scan form state
     const [user, setUser] = useState<string>(localStorage.getItem("angle_scan_user") ?? "");
-    const [startEnergy, setStartEnergy] = useState<number | "">(localStorageEnergyStart as number);
-    const [stopEnergy, setStopEnergy] = useState<number | "">(localStorageEnergyStop as number);
-    const [roiLow, setRoiLow] = useState<number | "">(localStorageRoiLow as number);
-    const [roiHigh, setRoiHigh] = useState<number | "">(localStorageRoiHigh as number);
-    const [numPoints, setNumPoints] = useState<number | "">(localStorageNumPoints as number);
+    const [startEnergy, setStartEnergy] = useState<number | "">(getLocalStorageEnergyStart() as number);
+    const [stopEnergy, setStopEnergy] = useState<number | "">(getLocalStorageEnergyStop() as number);
+    const [roiLow, setRoiLow] = useState<number | "">(getLocalStorageRoiLow() as number);
+    const [roiHigh, setRoiHigh] = useState<number | "">(getLocalStorageRoiHigh() as number);
+    const [numPoints, setNumPoints] = useState<number | "">(getLocalStorageNumPoints() as number);
     const [sample, setSample] = useState<string>(localStorage.getItem("xas_sample") ?? "");
     const [executedItemUid, setExecutedItemUid] = useState<string>("");
     const [viewMode, setViewMode] = useState<'form' | 'history'>('form');
