@@ -21,11 +21,11 @@ type ExperimentXASScanProps = {
     /** The base Tiled url */
     tiledBaseUrl?: string;
 };
-const getLocalStorageEnergyStart = ()=> localStorage.getItem("xas_start_energy") ?? 9000;
-const getLocalStorageEnergyStop = ()=> localStorage.getItem("xas_stop_energy") ?? 10000;
-const getLocalStorageNumPoints = ()=> localStorage.getItem("xas_num_points") ?? 10;
-const getLocalStorageRoiLow = ()=> localStorage.getItem("xas_roi_low") ?? 1800;
-const getLocalStorageRoiHigh = ()=> localStorage.getItem("xas_roi_high") ?? 2750;
+const getLocalStorageEnergyStart = ()=> Number(localStorage.getItem("xas_start_energy")) ?? 9000;
+const getLocalStorageEnergyStop = ()=> Number(localStorage.getItem("xas_stop_energy")) ?? 10000;
+const getLocalStorageNumPoints = ()=> Number(localStorage.getItem("xas_num_points")) ?? 10;
+const getLocalStorageRoiLow = ()=> Number(localStorage.getItem("xas_roi_low")) ?? 1800;
+const getLocalStorageRoiHigh = ()=> Number(localStorage.getItem("xas_roi_high")) ?? 2750;
 export default function ExperimentXASScan({ 
     className,
     onSuccess,
