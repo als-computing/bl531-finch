@@ -11,6 +11,7 @@ import { ClockCounterClockwise, PersonSimpleRun, Images, ChartLine } from "@phos
 import { PostItemAddResponse } from "@/api/qServer/types";
 import { cn } from "@/lib/utils";
 import { start } from "repl";
+import { useSearchResultsQuery } from "@/api/tiled/hooks";
 
 type ExperimentXASScanProps = {
     /** Additional CSS class names to apply to the root container. */
@@ -98,9 +99,29 @@ export default function ExperimentXASScan({
     // Update blueskyRunId when polling returns new run
     useEffect(() => {
         if (pollRunId) {
+            console.log('Found Bluesky run ID from polling:', pollRunId);
             setBlueskyRunId(pollRunId);
         }
     }, [pollRunId]);
+
+    // Poll Tiled for the most recent xas_scan run and sync if started externally
+    const { data: latestXasScanResult } = useSearchResultsQuery(
+        {
+            options: { pageLimit: 1, sort: '-' },
+            filters: {
+                specs: { include: ['BlueskyRun'], exclude: [] },
+                contains: { key: 'start.exact_plan_name', value: 'xas_scan' },
+            },
+        },
+        { refetchInterval: 5000 }
+    );
+
+    useEffect(() => {
+        if (viewMode === 'history') return;
+        const tiledRunId = latestXasScanResult?.data[0]?.id;
+        if (!tiledRunId || tiledRunId === blueskyRunId) return;
+        setBlueskyRunId(tiledRunId);
+    }, [latestXasScanResult, blueskyRunId, viewMode]);
 
     // Auto mode: fire plan 3 s after queue becomes idle
     useEffect(() => {
@@ -331,11 +352,6 @@ export default function ExperimentXASScan({
                                                 onError={handleError}
                                             />
                                         </div>
-{/*                                         
-                                        <div className="text-xs text-gray-600 mt-2 mx-auto w-fit">
-                                            <p>Energy Range: {startEnergy} eV - {stopEnergy} eV</p>
-                                            <p>Step Size: {stepSizeLabel} eV</p>
-                                        </div> */}
                                     </div>
                                     <div className="flex flex-col justify-center ml-4 gap-1">
                                         <span className="text-xs text-gray-500 text-center">Execution Mode</span>
@@ -379,7 +395,7 @@ export default function ExperimentXASScan({
                         )}
                     </div>
                     
-                    <div className="flex flex-col min-w-96 flex-grow border-l-2 border-slate-300 pl-4">
+                    <div className="flex flex-col min-w-96 flex-grow border-l-2 border-slate-300 pl-4  min-h-[45rem]">
                         <span className="flex flex-start gap-8">
                             {/* <button
                                 className="flex flex-col items-center gap-1 p-2 transition-colors text-sky-800"
