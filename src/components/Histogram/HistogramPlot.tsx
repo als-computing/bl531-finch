@@ -108,7 +108,7 @@ export default function HistogramPlot({ arrayData, showPlotSettings, className, 
     return (
         <div className={cn("flex flex-col items-center justify-start min-w-[70rem]", className)}>
                 <p className="text-lg text-center font-semibold text-sky-900">{title || "Histogram"}</p>
-            <article className="flex w-full flex-col items-start justify-center pl-12 text-slate-600">
+            <article className="flex w-full items-start justify-between text-slate-600">
                 <p className="text-lg text-center">Sum of All Elements: {sum.toPrecision(precision)}</p>
                 <p className="text-lg text-center">ROI Sum [{range[0]}-{range[1]}]: {enableROI ? roiAreaSum.toPrecision(precision) : 0}</p>
                 <p className="text-lg text-center">Total Array Elements: {totalArrayElements}</p>

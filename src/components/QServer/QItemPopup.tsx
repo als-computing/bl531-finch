@@ -117,14 +117,14 @@ export default function QItemPopup( {popupItem, handleQItemPopupClose=()=>{}, is
             return (
                 <span className="flex" key={kwarg}>
                     <p className="w-1/2">{kwarg}</p>
-                    <p className="w-1/2">{popupItem.kwargs[kwarg]}</p>
+                    <p className="w-1/2 text-ellipsis overflow-hidden">{popupItem.kwargs[kwarg]}</p>
                 </span>
             )
         } else {
             return (
                 <span className="flex" key={kwarg}>
                     <p className="w-1/2">{kwarg}</p>
-                    <p className="w-1/2">{JSON.stringify(popupItem.kwargs[kwarg])}</p>
+                    <p className="w-1/2 text-ellipsis overflow-hidden">{JSON.stringify(popupItem.kwargs[kwarg])}</p>
                 </span>
             )
         }
@@ -219,7 +219,7 @@ export default function QItemPopup( {popupItem, handleQItemPopupClose=()=>{}, is
 
 
         return (
-            <div  onClick={handleQItemPopupClose} className={`absolute top-0 left-0 w-full h-full z-40 rounded-md ${getPlanColorOpacity(popupItem.name)} flex justify-center items-center ${isDeleteModeVisible ? 'bg-red-600/40' : ''}`}>
+            <div  onClick={handleQItemPopupClose} className={`absolute top-0 left-0 w-full h-full z-40 rounded-md text-slate-700 ${getPlanColorOpacity(popupItem.name)} flex justify-center items-center ${isDeleteModeVisible ? 'bg-red-600/40' : ''}`}>
                 <div  onClick={(e)=> e.stopPropagation()} className={`z-50 relative  ${isHistory ? 'w-[90%] h-[70%] max-w-6xl max-h-[80rem]' : 'w-[75%]  h-[50%] min-h-[40rem] max-w-[40rem] max-h-[60rem]'} rounded-lg ${isDeleteModeVisible ? 'bg-slate-300' : 'bg-slate-50'}`}>
                     {areResultsVisible && <DeleteResultPopup response={response} handleCloseClick={handleCloseResults}/>}
                     {isDeleteModeVisible && <ConfirmDeleteItemPopup handleCancel={handleCancelDeleteClick} handleDelete={handleConfirmDeleteClick} />}

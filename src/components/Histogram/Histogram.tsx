@@ -39,8 +39,10 @@ type HistogramProps = {
     demo?: boolean;
     /** Number of significant figures for sum displays in the plot. Defaults to `6`. */
     precision?: number;
+    /** Title displayed at the top of the plot */
+    title?: string;
 }
-export default function Histogram({ arrayPV, acquirePV, exposurePV, showDeviceController, showPlotSettings, classNameContainer, classNameDeviceController, classNameHistogramPlot, classNamePlotSettings, demo, precision }: HistogramProps) {
+export default function Histogram({ arrayPV, acquirePV, exposurePV, showDeviceController, showPlotSettings, classNameContainer, classNameDeviceController, classNameHistogramPlot, classNamePlotSettings, demo, precision, title }: HistogramProps) {
     const deviceList = useMemo(() => (demo ? [] : [arrayPV, acquirePV, exposurePV]), [demo, arrayPV, acquirePV, exposurePV]);
     const { devices, handleSetValueRequest } = useOphydPVSocket(deviceList);
     const acquireDevice = devices[acquirePV];
@@ -77,9 +79,25 @@ export default function Histogram({ arrayPV, acquirePV, exposurePV, showDeviceCo
         handleSetValueRequest(exposurePV, newValue);
     }, [exposurePV, handleSetValueRequest])
 
+    const allConnected = demo || deviceList.every((pv) => devices[pv]?.connected === true);
+
+    if (!allConnected) {
+        const disconnectedPVs = deviceList.filter((pv) => devices[pv]?.connected !== true);
+        return (
+            <section className={cn("flex flex-col items-center justify-center gap-2 p-4 bg-slate-200 text-slate-700 w-[70rem] h-96 rounded-lg shadow-lg", classNameContainer)}>
+                <p className="font-semibold text-slate-600">Error: Cannot display Histogram - Devices not connected</p>
+                <ul className="text-sm text-slate-500 list-disc list-inside">
+                    {disconnectedPVs.map((pv) => (
+                        <li key={pv} className="font-mono">{pv}</li>
+                    ))}
+                </ul>
+            </section>
+        );
+    }
+
     return (
         <section className={cn("flex flex-col items-center justify-start gap-4 p-2 bg-slate-200 text-slate-700 min-w-fit h-fit overflow-x-auto overflow-y-hidden rounded-lg shadow-lg", classNameContainer)}>
-            <HistogramPlot showPlotSettings={showPlotSettings} className={classNameHistogramPlot} classNameSettings={classNamePlotSettings} arrayData={arrayData} precision={precision} />
+            <HistogramPlot title={title} showPlotSettings={showPlotSettings} className={classNameHistogramPlot} classNameSettings={classNamePlotSettings} arrayData={arrayData} precision={precision} />
             {showDeviceController && <HistogramDeviceController acquireDevice={devices[acquirePV]} exposureDevice={exposureDevice} handleStartAcquisition={handleStartAcquisition} handleStopAcquisition={handleStopAcquisition} handleSetExposure={handleSetExposure} className={classNameDeviceController} />}
         </section>
     )

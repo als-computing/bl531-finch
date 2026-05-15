@@ -73,7 +73,7 @@ export default function DashboardSummaryPage() {
                 </div>
                 <div className="flex flex-col">
                     <p className="text-lg text-white text-center">QServer</p>
-                    <QServerPlanMonitor className="h-[32rem]"/>
+                    <QServerPlanMonitor className="h-[32rem] text-slate-700"/>
                 </div>
             </Bento>
             <IFrame url="http://192.168.10.156:8080" isSizeResponsive={true} className="min-h-96"/>

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import ExperimentExecutePlanButtonGeneric from "./ExperimentExecutePlanButtonGeneric";
+import { useQueueQuery, useExecuteQueueItemMutation } from "@/api/qServer/hooks";
 import TiledWriterScatterPlot from "@/components/Tiled/TiledWriterScatterPlot";
 import { useGetBlueskyRunList } from "@/components/QServer/utils/qServerApiUtils";
 import TiledWriterDetImageHeatmap from "../Tiled/TiledWriterDetImageHeatmap";
@@ -43,6 +44,15 @@ export default function ExperimentXASScan({
     const [executedItemUid, setExecutedItemUid] = useState<string>("");
     const [viewMode, setViewMode] = useState<'form' | 'history'>('form');
     const [blueskyRunId, setBlueskyRunId] = useState<string>("");
+    const [autoMode, setAutoMode] = useState(false);
+
+    const queueQuery = useQueueQuery({ refetchInterval: 1000 });
+    const executeMutation = useExecuteQueueItemMutation();
+    const isQueueBusy = queueQuery.data?.running_item
+        ? Object.keys(queueQuery.data.running_item).length > 0
+        : false;
+    // Prevent double-firing: track whether we already submitted in this idle window
+    const autoSubmittedRef = useRef(false);
 
     useEffect(() => {
         localStorage.setItem("angle_scan_user", user);
@@ -91,6 +101,44 @@ export default function ExperimentXASScan({
             setBlueskyRunId(pollRunId);
         }
     }, [pollRunId]);
+
+    // Auto mode: fire plan 3 s after queue becomes idle
+    useEffect(() => {
+        if (!autoMode || isQueueBusy || autoSubmittedRef.current || executeMutation.isPending) {
+            if (!autoMode || isQueueBusy) autoSubmittedRef.current = false;
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            if (autoSubmittedRef.current) return;
+            autoSubmittedRef.current = true;
+            executeMutation.mutate(
+                {
+                    item: {
+                        name: "xas_scan",
+                        kwargs: {
+                            roi_low: roiLow,
+                            roi_high: roiHigh,
+                            start_eV: startEnergy,
+                            stop_eV: stopEnergy,
+                            num: numPoints,
+                            md: { exact_plan_name: "xas_scan", user, sample },
+                        },
+                        item_type: "plan",
+                    },
+                },
+                {
+                    onSuccess: (response) => {
+                        if (response.success) handleSuccess(response);
+                        else handleError(response.msg || "Failed to execute xas_scan plan");
+                    },
+                    onError: (err) => handleError(err instanceof Error ? err.message : "Network error"),
+                }
+            );
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, [autoMode, isQueueBusy, executeMutation.isPending]);
 
     // Energy scan form handlers
     const handleStartEnergyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -266,26 +314,58 @@ export default function ExperimentXASScan({
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                                     />
                                 </div>
-                                
-                                <div className="pt-2 m-auto w-fit">
-                                    <ExperimentExecutePlanButtonGeneric
-                                        planName="xas_scan"
-                                        kwargs={{
-                                            roi_low:roiLow,
-                                            roi_high:roiHigh,
-                                            start_eV: startEnergy,
-                                            stop_eV: stopEnergy,
-                                            num: numPoints,
-                                            md: {exact_plan_name: "xas_scan", user: user, sample: sample}
-                                        }}
-                                        onSuccess={handleSuccess}
-                                        onError={handleError}
-                                    />
-                                </div>
-                                
-                                <div className="text-xs text-gray-600 mt-2 mx-auto w-fit">
-                                    <p>Energy Range: {startEnergy} eV - {stopEnergy} eV</p>
-                                    <p>Step Size: {stepSizeLabel} eV</p>
+                                <div className="flex items-start justify-around">
+                                    <div className="flex flex-col">
+                                        <div className="pt-2 m-auto w-fit">
+                                            <ExperimentExecutePlanButtonGeneric
+                                                planName="xas_scan"
+                                                kwargs={{
+                                                    roi_low:roiLow,
+                                                    roi_high:roiHigh,
+                                                    start_eV: startEnergy,
+                                                    stop_eV: stopEnergy,
+                                                    num: numPoints,
+                                                    md: {exact_plan_name: "xas_scan", user: user, sample: sample}
+                                                }}
+                                                onSuccess={handleSuccess}
+                                                onError={handleError}
+                                            />
+                                        </div>
+{/*                                         
+                                        <div className="text-xs text-gray-600 mt-2 mx-auto w-fit">
+                                            <p>Energy Range: {startEnergy} eV - {stopEnergy} eV</p>
+                                            <p>Step Size: {stepSizeLabel} eV</p>
+                                        </div> */}
+                                    </div>
+                                    <div className="flex flex-col justify-center ml-4 gap-1">
+                                        <span className="text-xs text-gray-500 text-center">Execution Mode</span>
+                                        <button
+                                            onClick={() => setAutoMode((prev) => !prev)}
+                                            className={cn(
+                                                "relative flex items-center w-28 h-7 rounded-full border transition-colors text-xs font-medium select-none",
+                                                autoMode
+                                                    ? "bg-sky-700 border-sky-800 text-white"
+                                                    : "bg-gray-200 border-gray-300 text-gray-700"
+                                            )}
+                                            title={autoMode ? "Switch to manual" : "Switch to auto"}
+                                        >
+                                            <span className={cn(
+                                                "absolute left-1 z-10 transition-opacity duration-150",
+                                                autoMode ? "opacity-30" : "opacity-100"
+                                            )}>manual</span>
+                                            <span className={cn(
+                                                "absolute right-3 z-10 transition-opacity duration-150",
+                                                autoMode ? "opacity-100 text-sky-900" : "opacity-30"
+                                            )}>auto</span>
+                                            <span className={cn(
+                                                "absolute top-0.5 h-6 w-12 rounded-full bg-white shadow transition-all duration-200",
+                                                autoMode ? "left-[calc(100%-3.25rem)]" : "left-0.5"
+                                            )} />
+                                        </button>
+                                        {autoMode && (
+                                            <span className="text-xs text-sky-700 text-center">looping</span>
+                                        )}
+                                    </div>
                                 </div>
                             </>
                         ) : (
@@ -320,17 +400,19 @@ export default function ExperimentXASScan({
                         </span>
 
                         <div className="flex flex-grow items-center gap-4 h-fit justify-center" key={viewMode}>
-                            {/* <TiledWriterDetImageHeatmap
+                            {/* <TiledWriterScatterPlot 
+                                key={blueskyRunId}
                                 blueskyRunId={blueskyRunId}
-                                size="medium"
-                                isRunFinished={false}
-                                plotClassName="bg-transparent"
+                                tiledTrace={{ x: "mono_energy_energy_eV", y: "amptek_fluo_roi_sum" }}
+                                className="max-h-[40rem] h-full"
+                                plotClassName="h-[calc(100%-2rem)]"
+                                showStatusText={false}
                                 tiledBaseUrl={tiledBaseUrl}
                             /> */}
                             <TiledWriterScatterPlot 
                                 key={blueskyRunId}
                                 blueskyRunId={blueskyRunId}
-                                tiledTrace={{ x: "mono_energy_energy_eV", y: "amptek_fluo_roi_sum" }}
+                                tiledTrace={{ x: "seq_num", y: "rand" }}
                                 className="max-h-[40rem] h-full"
                                 plotClassName="h-[calc(100%-2rem)]"
                                 showStatusText={false}

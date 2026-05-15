@@ -99,11 +99,15 @@ export default function ExperimentExecutePlanButtonGeneric({
                 disabled={isButtonDisabled()}
                 className={`${className} ${isQueueServerBusy ? 'opacity-50 cursor-not-allowed' : ''}`}
             />
-            {isQueueServerBusy && (
+            {isQueueServerBusy ? (
                 <div className="text-sm text-red-600 mt-1 text-center">
                     Queue server busy
                 </div>
-            )}
+            ) :
+                <p className="text-sm text-gray-500 mt-1 text-center">
+                    Queue server available
+                </p>
+            }
         </div>
     );
 }

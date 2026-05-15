@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Plot, { PlotParams } from 'react-plotly.js';
-import { LayoutAxis } from 'plotly.js';
+import { Layout, LayoutAxis } from 'plotly.js';
 import { cn } from '@/lib/utils';
 
 export type PlotlyScatterProps = {
@@ -22,6 +22,8 @@ export type PlotlyScatterProps = {
   yAxisLayout?: Partial<LayoutAxis>;
   /** Additional CSS classes applied to the root container div. */
   className?: string;
+  /** Plotly layout overrides — merged on top of defaults, user values take precedence. */
+  layout?: Partial<Layout>;
 };
 
 const sampleData: PlotParams['data'] = [
@@ -49,6 +51,7 @@ const PlotlyScatter = React.memo(function PlotlyScatter({
   xAxisLayout,
   yAxisLayout,
   className,
+  layout,
   ...props
 }: PlotlyScatterProps) {
   const plotContainer = useRef<HTMLDivElement>(null);
@@ -76,7 +79,7 @@ const PlotlyScatter = React.memo(function PlotlyScatter({
           title: title,
           plot_bgcolor: '#E2E8F0',
           paper_bgcolor: '#E2E8F0',
-          xaxis: { 
+          xaxis: {
             title: {
               text: xAxisTitle,
               font: titleFont
@@ -84,12 +87,12 @@ const PlotlyScatter = React.memo(function PlotlyScatter({
             range: xAxisRange ? xAxisRange : undefined,
             ...xAxisLayout,
           },
-          yaxis: { 
+          yaxis: {
             title: {
               text: yAxisTitle,
               font: titleFont
             },
-            range: yAxisRange ? yAxisRange : undefined, 
+            range: yAxisRange ? yAxisRange : undefined,
             ...yAxisLayout,
           },
           autosize: true,
@@ -101,6 +104,7 @@ const PlotlyScatter = React.memo(function PlotlyScatter({
             t: 30,
             b: xAxisTitle ? 70 : 30,
           },
+          ...layout,
         }}
         config={{ responsive: true }}
       />

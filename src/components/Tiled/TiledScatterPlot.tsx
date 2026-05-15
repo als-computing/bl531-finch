@@ -77,7 +77,6 @@ export default function TiledScatterPlot({blueskyRunId, tiledTrace, path, partit
     return (
         <div className={cn("flex-grow h-[30rem] p-4 rounded-lg bg-white min-w-0 shadow-md", className)}>
             <span className="flex items-center h-8 space-x-8">
-                <p className="text-lg">{blueskyRunId}</p>
                 <p className="text-sm text-gray-600">{getStatusText()}</p>
             </span>
             <PlotlyScatter 
@@ -85,7 +84,8 @@ export default function TiledScatterPlot({blueskyRunId, tiledTrace, path, partit
                 xAxisTitle={xName} 
                 yAxisTitle={yName} 
                 className={plotClassName} 
-                title={blueskyRunId}
+                title={'bluesky run: ' + blueskyRunId}
+                layout={{plot_bgcolor: '#ffffff', paper_bgcolor: '#ffffff'}}
             />
         </div>
     );
