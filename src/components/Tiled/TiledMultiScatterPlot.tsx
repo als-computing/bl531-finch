@@ -7,8 +7,6 @@ import { getTableDataAsJson } from "@blueskyproject/tiled";
 import { TiledPlotlyTrace } from "./types/tiledPlotTypes";
 
 type TiledMultiScatterPlotProps = {
-    /**Bluesky Run ID saved into Tiled */
-    blueskyRunId: string;
     /** Trace descriptor mapping Plotly fields to table column names for x and y axes. */
     tiledTrace: TiledPlotlyTrace;
     /** Tiled paths to table nodes. `null` entries are skipped and show a waiting message. */
@@ -25,15 +23,21 @@ type TiledMultiScatterPlotProps = {
     className?: string;
     /** Additional class names applied to the `PlotlyScatter` element. */
     plotClassName?: string;
+    /** Title */
+    title?: string;
+    /** When `true`, uses only the first 4 characters of each path as the trace name. Ignored when `traceNames` is provided. */
+    shortPathNames?: boolean;
+    /** Explicit names for each trace, parallel to `paths`. Overrides `shortPathNames` when provided. */
+    traceNames?: string[];
 }
 
-export default function TiledMultiScatterPlot({ blueskyRunId, tiledTrace, paths, partition = 0, tiledBaseUrl, enablePolling, pollingIntervalMs = 1000, className, plotClassName }: TiledMultiScatterPlotProps) {
+export default function TiledMultiScatterPlot({ tiledTrace, paths, partition = 0, tiledBaseUrl, enablePolling, pollingIntervalMs = 1000, className, plotClassName, title, shortPathNames = false, traceNames }: TiledMultiScatterPlotProps) {
     const results = useQueries({
         queries: paths.map((path) => ({
-            queryKey: ['tiled', 'table', path],
+            queryKey: ['tiled', 'table', path ?? ''],
             queryFn: () => getTableDataAsJson(path!, partition, tiledBaseUrl),
             enabled: path !== null,
-            refetchInterval: enablePolling ? pollingIntervalMs : false,
+            refetchInterval: enablePolling ? pollingIntervalMs : (false as const),
         })),
     });
 
@@ -64,7 +68,7 @@ export default function TiledMultiScatterPlot({ blueskyRunId, tiledTrace, paths,
             ...tiledTrace,
             x: data[xName],
             y: data[yName],
-            name: paths[i] ?? `trace ${i}`,
+            name: traceNames?.[i] ?? (shortPathNames ? (paths[i] ?? `trace ${i}`).slice(0, 4) : (paths[i] ?? `trace ${i}`)),
         } as Partial<PlotData>];
     });
 
@@ -78,7 +82,7 @@ export default function TiledMultiScatterPlot({ blueskyRunId, tiledTrace, paths,
                 xAxisTitle={xName}
                 yAxisTitle={yName}
                 className={plotClassName}
-                title={'bluesky run: ' + blueskyRunId}
+                title={title}
                 layout={{ plot_bgcolor: '#ffffff', paper_bgcolor: '#ffffff' }}
             />
         </div>
