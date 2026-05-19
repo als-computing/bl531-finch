@@ -3,7 +3,7 @@ import { Tiled } from "@blueskyproject/tiled";
 import { TiledItemSelectionData } from "@blueskyproject/tiled/dist/components/Tiled/types";
 import TiledWriterMultiScatterPlot from "@/components/Tiled/TiledWriterMultiScatterPlot";
 import { TiledSearchConfig, TiledSearchResult, getSearchResults } from "@blueskyproject/tiled";
-import { Shuffle } from "@phosphor-icons/react";
+import { Shuffle, Sliders, PaintBrush } from "@phosphor-icons/react";
 import { Tooltip } from "react-tooltip";
 import dayjs from "dayjs";
 import '@/components/style.css';
@@ -59,132 +59,151 @@ export default function XASDataPage() {
         fetchData();
     }, []);
     return (
-        <div className="h-[48rem] flex space-x-8 p-4 bg-slate-100">
-            {/* <Tiled singleColumnMode={true} onSelectCallback={handleDataSelect}/> */}
-                        {/* <Tiled singleColumnMode={true} backgroundClassName="h-[40rem] min-w-96 w-36" contentClassName="h-full w-full"/> */}
-            <section className="flex flex-col h-full bg-white text-slate-800 border border-slate-300 rounded-md pb-2">
-                <span className="w-full flex text-slate-600 font-light py-2">
-                    <p className="w-1/2 text-center">All Data</p>
-                    <p className="w-1/2 text-center">Selected Data</p>
-                </span>
-                <article className="flex flex-grow min-h-0">
-                    {/* All Data For selection */}
-                    <ul className="w-72 h-full overflow-y-auto rounded-scrollbar border-r-2 borer-slate-300 pr-2">
-                        {searchResults && searchResults.data.map((item) => {
-                            const meta = item?.attributes?.metadata;
-                            const startTime = meta?.start?.time;
-                            const endTime = meta?.stop?.time;
-                            const tooltipContent = JSON.stringify({
-                                id: item.id,
-                                scanId: meta?.start?.scan_id,
-                                plan: meta?.start?.plan_name,
-                                detectors: meta?.start?.detectors?.join(', '),
-                                numPoints: meta?.start?.num_points,
-                                start: startTime ? dayjs.unix(startTime).format('MM/DD/YY h:mm A') : null,
-                                duration: startTime && endTime ? dayjs.unix(endTime).diff(dayjs.unix(startTime), 'second') : null,
-                                status: meta?.stop?.exit_status ?? 'running',
-                            });
-                            const isSelected = blueskyIds.includes(item.id);
-                            return (
-                                <li
-                                    className={`flex items-center gap-1 px-1 text-sm w-full min-w-0 pb-1 ${isSelected ? 'text-slate-300 hover:text-slate-800' : 'text-slate-800 hover:text-slate-500'} hover:cursor-pointer text-sm`}
-                                    key={item.id}
-                                    data-tooltip-id="run-meta-tooltip"
-                                    data-tooltip-content={tooltipContent}
-                                    onClick={isSelected ? () => handleIDUnselect(item.id) : () => handleIDSelect(item.id)}
-                                >
-                                    <p className="truncate flex-1 min-w-0">{itemLabel(meta as Record<string, unknown>, item.id)}</p>
-                                    <Shuffle size={14} className="shrink-0" />
-                                </li>
-                            )
-                        })}
-                    </ul>
-                    <Tooltip
-                        id="run-meta-tooltip"
-                        place="right"
-                        render={({ content }) => {
-                            if (!content) return null;
-                            const d = JSON.parse(content);
-                            return (
-                                <div className="text-xs space-y-1 max-w-56">
-                                    <p className="font-semibold text-white truncate">{d.id}</p>
-                                    <hr className="border-slate-500" />
-                                    {d.scanId != null    && <Row label="Scan ID"    value={d.scanId} />}
-                                    {d.plan              && <Row label="Plan"       value={d.plan} />}
-                                    {d.detectors         && <Row label="Detectors"  value={d.detectors} />}
-                                    {d.numPoints != null && <Row label="Points"     value={d.numPoints} />}
-                                    {d.start             && <Row label="Start"      value={d.start} />}
-                                    {d.duration != null  && <Row label="Duration"   value={`${d.duration} s`} />}
-                                    <Row label="Status" value={d.status} />
-                                </div>
-                            );
-                        }}
-                    />
-                    {/* Currently Selected items */}
-                    <ul className="w-72 h-full overflow-y-auto rounded-scrollbar text-slate-800 pl-2">
-                        {blueskyIds.length === 0 && (
-                            <li className="p-2 text-sm text-gray-300">Select a data set...</li>
-                        )}
-                        {blueskyIds.map((id) => {
-                            const item = searchResults?.data.find((r) => r.id === id);
-                            const meta = item?.attributes?.metadata;
-                            const startTime = meta?.start?.time;
-                            const endTime = meta?.stop?.time;
-                            const tooltipContent = JSON.stringify({
-                                id,
-                                scanId: meta?.start?.scan_id,
-                                plan: meta?.start?.plan_name,
-                                detectors: meta?.start?.detectors?.join(', '),
-                                numPoints: meta?.start?.num_points,
-                                start: startTime ? dayjs.unix(startTime).format('MM/DD/YY h:mm A') : null,
-                                duration: startTime && endTime ? dayjs.unix(endTime).diff(dayjs.unix(startTime), 'second') : null,
-                                status: meta?.stop?.exit_status ?? 'running',
-                            });
-                            return (
-                                <li key={id} className="flex items-center gap-2 pb-1 px-1 text-slate-800">
-                                    <span
-                                        className="flex items-center gap-2 flex-1 min-w-0 hover:text-slate-500 hover:cursor-pointer"
-                                        data-tooltip-id="run-meta-tooltip-left"
-                                        data-tooltip-content={tooltipContent}
-                                        onClick={() => handleIDUnselect(id)}
-                                    >
-                                        <Shuffle size={14} className="shrink-0 scale-x-[-1]" />
-                                        <p className="truncate flex-1 min-w-0 text-sm">{itemLabel(meta as Record<string, unknown>, id)}</p>
-                                    </span>
-                                    <input
-                                        type="text"
-                                        placeholder={id.slice(0, 4)}
-                                        value={traceNames[id] ?? ''}
-                                        onChange={(e) => setTraceNames((prev) => ({ ...prev, [id]: e.target.value }))}
-                                        className="w-24 shrink-0 border border-gray-300 rounded px-1 py-0.5 text-sm text-slate-800"
-                                    />
-                                </li>
-                            );
-                        })}
-                    </ul>
-                    <Tooltip
-                        id="run-meta-tooltip-left"
-                        place="left"
-                        render={({ content }) => {
-                            if (!content) return null;
-                            const d = JSON.parse(content);
-                            return (
-                                <div className="text-xs space-y-1 max-w-56">
-                                    <p className="font-semibold text-white truncate">{d.id}</p>
-                                    <hr className="border-slate-500" />
-                                    {d.scanId != null    && <Row label="Scan ID"   value={d.scanId} />}
-                                    {d.plan              && <Row label="Plan"      value={d.plan} />}
-                                    {d.detectors         && <Row label="Detectors" value={d.detectors} />}
-                                    {d.numPoints != null && <Row label="Points"    value={d.numPoints} />}
-                                    {d.start             && <Row label="Start"     value={d.start} />}
-                                    {d.duration != null  && <Row label="Duration"  value={`${d.duration} s`} />}
-                                    <Row label="Status" value={d.status} />
-                                </div>
-                            );
-                        }}
-                    />
-                </article>
-            </section>
+        <article className="h-full flex space-x-8 p-4 bg-slate-100 text-slate-700">
+
+            <div className="flex flex-col">
+
+                {/* Plot Settings Inputs */}
+                <section>
+                    <span className="flex space-x-4 items-center">
+                        <Sliders size={20} className="inline mr-1" />
+                        <h3> Plot Settings</h3>
+                    </span>
+                </section>
+        
+                {/* Data Selection Table */}
+                <section>
+                    <span className="flex space-x-4 items-center">
+                        <PaintBrush size={20} className="inline mr-1" />
+                        <h3> Data Picker</h3>
+                    </span>
+                    <div className="flex flex-col h-[36rem] bg-white text-slate-800 border border-slate-300 rounded-md pb-2">
+                        <span className="w-full flex text-slate-600 font-light py-2">
+                            <p className="w-1/2 text-center">All Data</p>
+                            <p className="w-1/2 text-center">Selected Data</p>
+                        </span>
+                        <div className="flex flex-grow min-h-0 px-2">
+                            {/* All Data For selection */}
+                            <ul className="w-72 h-full overflow-y-auto rounded-scrollbar border-r-2 borer-slate-300 pr-2">
+                                {searchResults && searchResults.data.map((item) => {
+                                    const meta = item?.attributes?.metadata;
+                                    const startTime = meta?.start?.time;
+                                    const endTime = meta?.stop?.time;
+                                    const tooltipContent = JSON.stringify({
+                                        id: item.id,
+                                        scanId: meta?.start?.scan_id,
+                                        plan: meta?.start?.plan_name,
+                                        detectors: meta?.start?.detectors?.join(', '),
+                                        numPoints: meta?.start?.num_points,
+                                        start: startTime ? dayjs.unix(startTime).format('MM/DD/YY h:mm A') : null,
+                                        duration: startTime && endTime ? dayjs.unix(endTime).diff(dayjs.unix(startTime), 'second') : null,
+                                        status: meta?.stop?.exit_status ?? 'running',
+                                    });
+                                    const isSelected = blueskyIds.includes(item.id);
+                                    return (
+                                        <li
+                                            className={`flex items-center gap-1 px-1 text-sm w-full min-w-0 pb-1 ${isSelected ? 'text-slate-300 hover:text-slate-800' : 'text-slate-800 hover:text-slate-500'} hover:cursor-pointer text-sm`}
+                                            key={item.id}
+                                            data-tooltip-id="run-meta-tooltip"
+                                            data-tooltip-content={tooltipContent}
+                                            onClick={isSelected ? () => handleIDUnselect(item.id) : () => handleIDSelect(item.id)}
+                                        >
+                                            <p className="truncate flex-1 min-w-0">{itemLabel(meta as Record<string, unknown>, item.id)}</p>
+                                            <Shuffle size={14} className="shrink-0" />
+                                        </li>
+                                    )
+                                })}
+                            </ul>
+                            <Tooltip
+                                id="run-meta-tooltip"
+                                place="right"
+                                render={({ content }) => {
+                                    if (!content) return null;
+                                    const d = JSON.parse(content);
+                                    return (
+                                        <div className="text-xs space-y-1 max-w-56">
+                                            <p className="font-semibold text-white truncate">{d.id}</p>
+                                            <hr className="border-slate-500" />
+                                            {d.scanId != null    && <Row label="Scan ID"    value={d.scanId} />}
+                                            {d.plan              && <Row label="Plan"       value={d.plan} />}
+                                            {d.detectors         && <Row label="Detectors"  value={d.detectors} />}
+                                            {d.numPoints != null && <Row label="Points"     value={d.numPoints} />}
+                                            {d.start             && <Row label="Start"      value={d.start} />}
+                                            {d.duration != null  && <Row label="Duration"   value={`${d.duration} s`} />}
+                                            <Row label="Status" value={d.status} />
+                                        </div>
+                                    );
+                                }}
+                            />
+                            {/* Currently Selected items */}
+                            <ul className="w-72 h-full overflow-y-auto rounded-scrollbar text-slate-800 pl-2">
+                                {blueskyIds.length === 0 && (
+                                    <li className="p-2 text-sm text-gray-600 animate-pulse">Select a data set...</li>
+                                )}
+                                {blueskyIds.map((id) => {
+                                    const item = searchResults?.data.find((r) => r.id === id);
+                                    const meta = item?.attributes?.metadata;
+                                    const startTime = meta?.start?.time;
+                                    const endTime = meta?.stop?.time;
+                                    const tooltipContent = JSON.stringify({
+                                        id,
+                                        scanId: meta?.start?.scan_id,
+                                        plan: meta?.start?.plan_name,
+                                        detectors: meta?.start?.detectors?.join(', '),
+                                        numPoints: meta?.start?.num_points,
+                                        start: startTime ? dayjs.unix(startTime).format('MM/DD/YY h:mm A') : null,
+                                        duration: startTime && endTime ? dayjs.unix(endTime).diff(dayjs.unix(startTime), 'second') : null,
+                                        status: meta?.stop?.exit_status ?? 'running',
+                                    });
+                                    return (
+                                        <li key={id} className="flex items-center gap-2 pb-1 px-1 text-slate-800">
+                                            <span
+                                                className="flex items-center gap-2 flex-1 min-w-0 hover:text-slate-500 hover:cursor-pointer"
+                                                data-tooltip-id="run-meta-tooltip-left"
+                                                data-tooltip-content={tooltipContent}
+                                                onClick={() => handleIDUnselect(id)}
+                                            >
+                                                <Shuffle size={14} className="shrink-0 scale-x-[-1]" />
+                                                <p className="truncate flex-1 min-w-0 text-sm">{itemLabel(meta as Record<string, unknown>, id)}</p>
+                                            </span>
+                                            <input
+                                                type="text"
+                                                placeholder={id.slice(0, 4)}
+                                                value={traceNames[id] ?? ''}
+                                                onChange={(e) => setTraceNames((prev) => ({ ...prev, [id]: e.target.value }))}
+                                                className="w-24 shrink-0 border border-gray-300 rounded px-1 py-0.5 text-sm text-slate-800"
+                                            />
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                            <Tooltip
+                                id="run-meta-tooltip-left"
+                                place="left"
+                                render={({ content }) => {
+                                    if (!content) return null;
+                                    const d = JSON.parse(content);
+                                    return (
+                                        <div className="text-xs space-y-1 max-w-56">
+                                            <p className="font-semibold text-white truncate">{d.id}</p>
+                                            <hr className="border-slate-500" />
+                                            {d.scanId != null    && <Row label="Scan ID"   value={d.scanId} />}
+                                            {d.plan              && <Row label="Plan"      value={d.plan} />}
+                                            {d.detectors         && <Row label="Detectors" value={d.detectors} />}
+                                            {d.numPoints != null && <Row label="Points"    value={d.numPoints} />}
+                                            {d.start             && <Row label="Start"     value={d.start} />}
+                                            {d.duration != null  && <Row label="Duration"  value={`${d.duration} s`} />}
+                                            <Row label="Status" value={d.status} />
+                                        </div>
+                                    );
+                                }}
+                            />
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            {/* Scatter Plot */}
             <TiledWriterMultiScatterPlot
                 tiledTrace={{ x: 'seq_num', y: 'rand' }}
                 blueskyRunIds={blueskyIds}
@@ -192,6 +211,6 @@ export default function XASDataPage() {
                 className="h-full"
                 plotClassName="h-full"
             />
-        </div>
+        </article>
     )
 }
