@@ -15,8 +15,6 @@ type TiledWriterMultiScatterPlotProps = {
     className?: string;
     /** Additional class names applied to the plot inside `TiledMultiScatterPlot`. */
     plotClassName?: string;
-    /** When `true`, renders a status/error text line above the plot. Defaults to `true`. */
-    showStatusText?: boolean;
     /** Title for the plot. */
     title?: string;
     /** Explicit legend names for each trace, parallel to `blueskyRunIds`. */
@@ -30,23 +28,16 @@ export default function TiledWriterMultiScatterPlot({
     pollingIntervalMs,
     className,
     plotClassName,
-    showStatusText = true,
     title,
     traceNames,
 }: TiledWriterMultiScatterPlotProps) {
     const { tiledPaths, isLoading, errors } = useTiledWriterScatterPlots(blueskyRunIds, { tiledBaseUrl });
+    const errorMessage = isLoading ? undefined : errors.length > 0 ? `Error fetching data from Tiled server, check the console for more details` : undefined;
+    if (!isLoading && errors.length > 0) console.error('Errors in useTiledWriterScatterPlots:', errors);
 
-    const getStatusText = () => {
-        if (blueskyRunIds.length === 0) return 'No run IDs provided - waiting for data';
-        if (isLoading) return `Loading Tiled data for ${blueskyRunIds.length} run(s)...`;
-        const activeErrors = errors.filter(Boolean);
-        if (activeErrors.length > 0) return activeErrors.join(' | ');
-        const resolvedCount = tiledPaths.filter(Boolean).length;
-        return `Found ${resolvedCount} of ${blueskyRunIds.length} path(s)`;
-    };
-
+//todo - display error in the UI if there is one from the hook. if use provides specific className for the plot
+//if we can't get any tiledPaths
     return (
-       
             <TiledMultiScatterPlot
                 paths={tiledPaths}
                 tiledTrace={tiledTrace}
@@ -57,7 +48,7 @@ export default function TiledWriterMultiScatterPlot({
                 title={title}
                 shortPathNames={!traceNames}
                 traceNames={traceNames}
+                popupMessage={errorMessage}
             />
-        
     );
 }           

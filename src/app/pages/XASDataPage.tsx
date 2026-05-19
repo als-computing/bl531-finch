@@ -59,20 +59,17 @@ export default function XASDataPage() {
         fetchData();
     }, []);
     return (
-        <div className="h-[36rem] flex bg-slate-100">
+        <div className="h-[48rem] flex bg-slate-100">
             {/* <Tiled singleColumnMode={true} onSelectCallback={handleDataSelect}/> */}
                         {/* <Tiled singleColumnMode={true} backgroundClassName="h-[40rem] min-w-96 w-36" contentClassName="h-full w-full"/> */}
-            <section className="flex flex-col h-full bg-white text-slate-800">
-                <article className="flex-shrink-0 min-h-12 ">
-                    plot settings
-                </article>
+            <section className="flex flex-col h-full bg-white text-slate-800 border border-slate-300 rounded-md m-8">
                 <span className="w-full flex">
                     <p className="w-1/2 text-center">All Data</p>
                     <p className="w-1/2 text-center">Selected Data</p>
                 </span>
                 <article className="flex flex-grow min-h-0">
                     {/* All Data For selection */}
-                    <ul className="w-72 h-full overflow-y-scroll rounded-scrollbar ">
+                    <ul className="w-72 h-full overflow-y-auto rounded-scrollbar">
                         {searchResults && searchResults.data.map((item) => {
                             const meta = item?.attributes?.metadata;
                             const startTime = meta?.start?.time;
@@ -90,7 +87,7 @@ export default function XASDataPage() {
                             const isSelected = blueskyIds.includes(item.id);
                             return (
                                 <li
-                                    className={`flex items-center gap-1 px-1 text-sm w-full min-w-0 ${isSelected ? 'text-slate-300 hover:text-slate-800' : 'text-slate-800 hover:text-slate-500'} hover:cursor-pointer text-sm`}
+                                    className={`flex items-center gap-1 px-1 text-sm w-full min-w-0 pb-1 ${isSelected ? 'text-slate-300 hover:text-slate-800' : 'text-slate-800 hover:text-slate-500'} hover:cursor-pointer text-sm`}
                                     key={item.id}
                                     data-tooltip-id="run-meta-tooltip"
                                     data-tooltip-content={tooltipContent}
@@ -124,7 +121,7 @@ export default function XASDataPage() {
                         }}
                     />
                     {/* Currently Selected items */}
-                    <ul className="w-72 h-full overflow-y-scroll rounded-scrollbar text-slate-800">
+                    <ul className="w-72 h-full overflow-y-auto rounded-scrollbar text-slate-800">
                         {blueskyIds.length === 0 && (
                             <li className="p-2 text-sm text-gray-300">Select a data set...</li>
                         )}
@@ -144,21 +141,22 @@ export default function XASDataPage() {
                                 status: meta?.stop?.exit_status ?? 'running',
                             });
                             return (
-                                <li
-                                    key={id}
-                                    className="flex items-center gap-2 text-slate-800 hover:text-slate-500 hover:cursor-pointer py-1 px-1"
-                                    data-tooltip-id="run-meta-tooltip-left"
-                                    data-tooltip-content={tooltipContent}
-                                    
-                                >
-                                    <Shuffle size={14} className="shrink-0 scale-x-[-1]" onClick={()=> handleIDUnselect(id)}/>
-                                    <p className="truncate flex-1 text-sm" onClick={()=> handleIDUnselect(id)}>{itemLabel(meta as Record<string, unknown>, id)}</p>
+                                <li key={id} className="flex items-center gap-2 pb-1 px-1 text-slate-800">
+                                    <span
+                                        className="flex items-center gap-2 flex-1 min-w-0 hover:text-slate-500 hover:cursor-pointer"
+                                        data-tooltip-id="run-meta-tooltip-left"
+                                        data-tooltip-content={tooltipContent}
+                                        onClick={() => handleIDUnselect(id)}
+                                    >
+                                        <Shuffle size={14} className="shrink-0 scale-x-[-1]" />
+                                        <p className="truncate flex-1 min-w-0 text-sm">{itemLabel(meta as Record<string, unknown>, id)}</p>
+                                    </span>
                                     <input
                                         type="text"
                                         placeholder={id.slice(0, 4)}
                                         value={traceNames[id] ?? ''}
                                         onChange={(e) => setTraceNames((prev) => ({ ...prev, [id]: e.target.value }))}
-                                        className="w-24 shrink-0 border border-gray-300 rounded px-1 py-0.5 text-sm"
+                                        className="w-24 shrink-0 border border-gray-300 rounded px-1 py-0.5 text-sm text-slate-800"
                                     />
                                 </li>
                             );
@@ -191,7 +189,8 @@ export default function XASDataPage() {
                 tiledTrace={{ x: 'seq_num', y: 'rand' }}
                 blueskyRunIds={blueskyIds}
                 traceNames={blueskyIds.map((id) => traceNames[id] || id.slice(0, 4))}
-                showStatusText={true}
+                className="h-full border border-red-500"
+                plotClassName="h-full border border-green-500"
             />
         </div>
     )

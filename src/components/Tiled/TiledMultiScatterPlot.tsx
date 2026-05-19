@@ -16,8 +16,6 @@ type TiledMultiScatterPlotProps = {
     /** Base URL of the Tiled server. Falls back to the library default when omitted. */
     tiledBaseUrl?: string;
     /** When `true`, refetches data at the interval set by `pollingIntervalMs`. */
-    enablePolling?: boolean;
-    /** Milliseconds between data refetches when `enablePolling` is `true`. Defaults to `1000`. */
     pollingIntervalMs?: number;
     /** Additional class names applied to the outer container element. */
     className?: string;
@@ -29,15 +27,16 @@ type TiledMultiScatterPlotProps = {
     shortPathNames?: boolean;
     /** Explicit names for each trace, parallel to `paths`. Overrides `shortPathNames` when provided. */
     traceNames?: string[];
+    /** Message to display that overrides all other displays from the component, use for higher level errors */
+    popupMessage?: string;
 }
 
-export default function TiledMultiScatterPlot({ tiledTrace, paths, partition = 0, tiledBaseUrl, enablePolling, pollingIntervalMs = 1000, className, plotClassName, title, shortPathNames = false, traceNames }: TiledMultiScatterPlotProps) {
+export default function TiledMultiScatterPlot({ tiledTrace, paths, partition = 0, tiledBaseUrl, pollingIntervalMs = 1000, className, plotClassName, title, shortPathNames = false, traceNames, popupMessage }: TiledMultiScatterPlotProps) {
     const results = useQueries({
         queries: paths.map((path) => ({
             queryKey: ['tiled', 'table', path ?? ''],
             queryFn: () => getTableDataAsJson(path!, partition, tiledBaseUrl),
             enabled: path !== null,
-            refetchInterval: enablePolling ? pollingIntervalMs : (false as const),
         })),
     });
 
@@ -58,7 +57,7 @@ export default function TiledMultiScatterPlot({ tiledTrace, paths, partition = 0
             return `Error loading data: ${errors[0]}`;
         }
         const totalPoints = results.reduce((sum, r) => sum + (r.data?.[xName]?.length ?? 0), 0);
-        return `Scatter plot data: ${totalPoints} points${enablePolling ? ' (Live)' : ''}`;
+        return `Scatter plot data: ${totalPoints} points`;
     };
 
     const plotData: Partial<PlotData>[] = results.flatMap((r, i) => {
@@ -73,10 +72,25 @@ export default function TiledMultiScatterPlot({ tiledTrace, paths, partition = 0
     });
 
     return (
-        <div className={cn("flex-grow h-[30rem] p-4 rounded-lg bg-white min-w-0 shadow-md", className)}>
-            <span className="flex items-center h-8 space-x-8">
-                <p className="text-sm text-gray-600">{getStatusText()}</p>
-            </span>
+        <div className={cn("flex-grow h-[30rem] rounded-lg bg-white min-w-0 shadow-md relative", className)}>
+            {popupMessage 
+            ? 
+                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 z-10">
+                    <p className="text-red-500">{popupMessage}</p>
+                </div>
+            :
+                <>
+                    {isLoading && <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
+                        <p className="text-slate-500">Loading data...</p>
+                    </div>}
+                    {errors.length > 0 && <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
+                        <p className="text-red-500">Error loading data: {errors[0]}</p>
+                    </div>}
+                    {paths.every((p) => p === null) && <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
+                        <p className="text-slate-500">No data paths provided - waiting for paths</p>
+                    </div>}
+                </>
+        }
             <PlotlyScatter
                 data={plotData}
                 xAxisTitle={xName}

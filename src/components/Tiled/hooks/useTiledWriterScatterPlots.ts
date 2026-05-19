@@ -65,15 +65,15 @@ export const useTiledWriterScatterPlots = (
     const isLoading = runQueries.some((q) => q.isLoading) ||
         primaryQueries.some((q) => q.isLoading);
 
-    const errors = useMemo(() =>
-        blueskyRunIds.map((id, i) => {
+    const errors = useMemo(() => {
+        const perRun = blueskyRunIds.map((id, i) => {
             if (tiledPaths[i]) return null;
             if (!id?.trim()) return 'No run ID provided';
             if (!runQueries[i]?.data) return `Searching for run ${id}...`;
             return `No data path found for run ${id}`;
-        }),
-        [blueskyRunIds, tiledPaths, runQueries, primaryQueries]
-    );
+        });
+        return perRun.every((e) => e === null) ? [] : perRun;
+    }, [blueskyRunIds, tiledPaths, runQueries, primaryQueries]);
 
     return { tiledPaths, isLoading, errors };
 };
