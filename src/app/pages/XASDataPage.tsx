@@ -3,8 +3,30 @@ import { Tiled } from "@blueskyproject/tiled";
 import { TiledItemSelectionData } from "@blueskyproject/tiled/dist/components/Tiled/types";
 import TiledWriterMultiScatterPlot from "@/components/Tiled/TiledWriterMultiScatterPlot";
 import { TiledSearchConfig, TiledSearchResult, getSearchResults } from "@blueskyproject/tiled";
+import { Shuffle } from "@phosphor-icons/react";
+import { Tooltip } from "react-tooltip";
+import dayjs from "dayjs";
+import '@/components/style.css';
+
+function Row({ label, value }: { label: string; value: string | number }) {
+    return (
+        <p><span className="text-slate-400">{label}: </span><span className="text-white">{value}</span></p>
+    );
+}
+
+function itemLabel(meta: Record<string, unknown> | undefined, id: string): string {
+    const start = meta?.start as Record<string, unknown> | undefined;
+    const time = start?.time as number | undefined;
+    const datePart = time ? dayjs.unix(time).format('MM/DD') : null;
+    const timePart = time ? dayjs.unix(time).format('HH:mm') : null;
+    const userMeta = (start?.sample_name ?? start?.user ?? start?.operator ?? start?.proposal_id) as string | undefined;
+    const parts = [datePart, timePart, userMeta, id].filter(Boolean);
+    return parts.join('  ');
+}
+
 export default function XASDataPage() {
     const [blueskyIds, setBlueskyIds] = useState<string[]>([]);
+    const [traceNames, setTraceNames] = useState<Record<string, string>>({});
     const handleDataSelect = (data: TiledItemSelectionData) => {
         console.log("Selected data from Tiled:", data);
         setBlueskyIds((prev) => [...prev, data.id]);
@@ -37,61 +59,140 @@ export default function XASDataPage() {
         fetchData();
     }, []);
     return (
-        <div className=" ">
+        <div className="h-[36rem] flex bg-slate-100">
             {/* <Tiled singleColumnMode={true} onSelectCallback={handleDataSelect}/> */}
                         {/* <Tiled singleColumnMode={true} backgroundClassName="h-[40rem] min-w-96 w-36" contentClassName="h-full w-full"/> */}
+            <section className="flex flex-col h-full bg-white text-slate-800">
+                <article className="flex-shrink-0 min-h-12 ">
+                    plot settings
+                </article>
+                <span className="w-full flex">
+                    <p className="w-1/2 text-center">All Data</p>
+                    <p className="w-1/2 text-center">Selected Data</p>
+                </span>
+                <article className="flex flex-grow min-h-0">
+                    {/* All Data For selection */}
+                    <ul className="w-72 h-full overflow-y-scroll rounded-scrollbar ">
+                        {searchResults && searchResults.data.map((item) => {
+                            const meta = item?.attributes?.metadata;
+                            const startTime = meta?.start?.time;
+                            const endTime = meta?.stop?.time;
+                            const tooltipContent = JSON.stringify({
+                                id: item.id,
+                                scanId: meta?.start?.scan_id,
+                                plan: meta?.start?.plan_name,
+                                detectors: meta?.start?.detectors?.join(', '),
+                                numPoints: meta?.start?.num_points,
+                                start: startTime ? dayjs.unix(startTime).format('MM/DD/YY h:mm A') : null,
+                                duration: startTime && endTime ? dayjs.unix(endTime).diff(dayjs.unix(startTime), 'second') : null,
+                                status: meta?.stop?.exit_status ?? 'running',
+                            });
+                            const isSelected = blueskyIds.includes(item.id);
+                            return (
+                                <li
+                                    className={`flex items-center gap-1 px-1 text-sm w-full min-w-0 ${isSelected ? 'text-slate-300 hover:text-slate-800' : 'text-slate-800 hover:text-slate-500'} hover:cursor-pointer text-sm`}
+                                    key={item.id}
+                                    data-tooltip-id="run-meta-tooltip"
+                                    data-tooltip-content={tooltipContent}
+                                    onClick={isSelected ? () => handleIDUnselect(item.id) : () => handleIDSelect(item.id)}
+                                >
+                                    <p className="truncate flex-1 min-w-0">{itemLabel(meta as Record<string, unknown>, item.id)}</p>
+                                    <Shuffle size={14} className="shrink-0" />
+                                </li>
+                            )
+                        })}
+                    </ul>
+                    <Tooltip
+                        id="run-meta-tooltip"
+                        place="right"
+                        render={({ content }) => {
+                            if (!content) return null;
+                            const d = JSON.parse(content);
+                            return (
+                                <div className="text-xs space-y-1 max-w-56">
+                                    <p className="font-semibold text-white truncate">{d.id}</p>
+                                    <hr className="border-slate-500" />
+                                    {d.scanId != null    && <Row label="Scan ID"    value={d.scanId} />}
+                                    {d.plan              && <Row label="Plan"       value={d.plan} />}
+                                    {d.detectors         && <Row label="Detectors"  value={d.detectors} />}
+                                    {d.numPoints != null && <Row label="Points"     value={d.numPoints} />}
+                                    {d.start             && <Row label="Start"      value={d.start} />}
+                                    {d.duration != null  && <Row label="Duration"   value={`${d.duration} s`} />}
+                                    <Row label="Status" value={d.status} />
+                                </div>
+                            );
+                        }}
+                    />
+                    {/* Currently Selected items */}
+                    <ul className="w-72 h-full overflow-y-scroll rounded-scrollbar text-slate-800">
+                        {blueskyIds.length === 0 && (
+                            <li className="p-2 text-sm text-gray-300">Select a data set...</li>
+                        )}
+                        {blueskyIds.map((id) => {
+                            const item = searchResults?.data.find((r) => r.id === id);
+                            const meta = item?.attributes?.metadata;
+                            const startTime = meta?.start?.time;
+                            const endTime = meta?.stop?.time;
+                            const tooltipContent = JSON.stringify({
+                                id,
+                                scanId: meta?.start?.scan_id,
+                                plan: meta?.start?.plan_name,
+                                detectors: meta?.start?.detectors?.join(', '),
+                                numPoints: meta?.start?.num_points,
+                                start: startTime ? dayjs.unix(startTime).format('MM/DD/YY h:mm A') : null,
+                                duration: startTime && endTime ? dayjs.unix(endTime).diff(dayjs.unix(startTime), 'second') : null,
+                                status: meta?.stop?.exit_status ?? 'running',
+                            });
+                            return (
+                                <li
+                                    key={id}
+                                    className="flex items-center gap-2 text-slate-800 hover:text-slate-500 hover:cursor-pointer py-1 px-1"
+                                    data-tooltip-id="run-meta-tooltip-left"
+                                    data-tooltip-content={tooltipContent}
+                                    
+                                >
+                                    <Shuffle size={14} className="shrink-0 scale-x-[-1]" onClick={()=> handleIDUnselect(id)}/>
+                                    <p className="truncate flex-1 text-sm" onClick={()=> handleIDUnselect(id)}>{itemLabel(meta as Record<string, unknown>, id)}</p>
+                                    <input
+                                        type="text"
+                                        placeholder={id.slice(0, 4)}
+                                        value={traceNames[id] ?? ''}
+                                        onChange={(e) => setTraceNames((prev) => ({ ...prev, [id]: e.target.value }))}
+                                        className="w-24 shrink-0 border border-gray-300 rounded px-1 py-0.5 text-sm"
+                                    />
+                                </li>
+                            );
+                        })}
+                    </ul>
+                    <Tooltip
+                        id="run-meta-tooltip-left"
+                        place="left"
+                        render={({ content }) => {
+                            if (!content) return null;
+                            const d = JSON.parse(content);
+                            return (
+                                <div className="text-xs space-y-1 max-w-56">
+                                    <p className="font-semibold text-white truncate">{d.id}</p>
+                                    <hr className="border-slate-500" />
+                                    {d.scanId != null    && <Row label="Scan ID"   value={d.scanId} />}
+                                    {d.plan              && <Row label="Plan"      value={d.plan} />}
+                                    {d.detectors         && <Row label="Detectors" value={d.detectors} />}
+                                    {d.numPoints != null && <Row label="Points"    value={d.numPoints} />}
+                                    {d.start             && <Row label="Start"     value={d.start} />}
+                                    {d.duration != null  && <Row label="Duration"  value={`${d.duration} s`} />}
+                                    <Row label="Status" value={d.status} />
+                                </div>
+                            );
+                        }}
+                    />
+                </article>
+            </section>
             <TiledWriterMultiScatterPlot
                 tiledTrace={{ x: 'seq_num', y: 'rand' }}
                 blueskyRunIds={blueskyIds}
+                traceNames={blueskyIds.map((id) => traceNames[id] || id.slice(0, 4))}
                 showStatusText={true}
             />
-            <section className="flex">
-                {/* All Data For selection */}
-                <ul className="w-96 h-96 overflow-scroll bg-white">
-                    {searchResults && searchResults.data.map((item) => {
-                        // const startTime = item?.attributes?.metadata?.start?.time;
-                        // const formattedStartTime = startTime ? dayjs.unix(startTime).format('MM/DD h:mm A') : "N/A";
-                        // const endTime = item?.attributes?.metadata?.stop?.time;
-                        // const duration = startTime && endTime ? dayjs.unix(endTime).diff(dayjs.unix(startTime), 'second') + " s" : "N/A";
-                        // const status = item?.attributes?.metadata?.stop ? item?.attributes?.metadata?.stop?.exit_status : "running";
-                        const isSelected = blueskyIds.includes(item.id);
-                        return (
-                            // <tr key={item.id} className={`mb-2 p-2 text-slate-800 font-light mx-2 hover:bg-sky-200 cursor-pointer ${
-                            //     enablePersistentSelection && selectedItemId === item.id 
-                            //         ? 'bg-sky-300' 
-                            //         : 'bg-white/10'
-                            // }`} onClick={()=>{
-                            //     if (enablePersistentSelection) {
-                            //         setSelectedItemId(item.id);
-                            //     }
-                            //     if (onItemClick) onItemClick(item);
-                            // }}>
-                            //     <td className="px-2 py-2">{formattedStartTime}</td>
-                            //     <td className="px-2 py-2 max-w-24 truncate">{item.id}</td>
-                            //     <td className="px-2 py-2">{status}</td>
-                            //     <td className="px-2 py-2 text-center">{duration}</td>
-                            // </tr>
-
-                            <li 
-                                className={`${isSelected ? 'text-slate-300 hover:text-slate-800' : 'text-slate-800 hover:text-slate-500'} hover:cursor-pointer `}
-                                key={item.id}
-                                onClick={isSelected ? () => handleIDUnselect(item.id) : () => handleIDSelect(item.id)}
-                            >
-                                <p>{item.id}</p>
-                            </li>
-                        )
-                    }
-                    )}
-                </ul>
-                {/* Currently Selected items */}
-                <ul className="w-96 h-96 overflow-scroll bg-white">
-                    {blueskyIds.map((id) => (
-                        <li key={id} className="text-slate-800">
-                            <p>{id}</p>
-                        </li>
-                    ))}
-                </ul>
-            </section>
         </div>
     )
 }

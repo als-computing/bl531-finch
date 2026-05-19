@@ -49,23 +49,11 @@ export const useTiledWriterScatterPlot = (
     );
     const runExists = !!runQuery.data;
 
-    // Step 2: Try newer tiled-writer path (streams/primary).
-    const streamsQuery = useSearchByIdQuery(
-        { path: `${blueskyRunId}/streams/primary` },
-        {
-            enabled: runExists,
-            retry: false,
-            refetchInterval: (query) => (query.state.data || isRunFinished) ? false : 2000,
-        }
-    );
-    const streamsFound = streamsQuery.isSuccess && !!streamsQuery.data;
-    const streamsFailed = streamsQuery.isSuccess && !streamsQuery.data;
-
-    // Step 3: Fallback to older tiled-writer path (primary).
+    // Step 2: Fetch the primary path directly under the run ID.
     const directQuery = useSearchByIdQuery(
         { path: `${blueskyRunId}/primary` },
         {
-            enabled: runExists && streamsFailed,
+            enabled: runExists,
             retry: false,
             refetchInterval: (query) => (query.state.data || isRunFinished) ? false : 2000,
         }
@@ -73,27 +61,26 @@ export const useTiledWriterScatterPlot = (
     const directFound = directQuery.isSuccess && !!directQuery.data;
 
     const tiledPath = useMemo(() => {
-        if (streamsFound) return `${blueskyRunId}/streams/primary/internal`;
         if (directFound) return `${blueskyRunId}/primary/internal`;
         return null;
-    }, [streamsFound, directFound, blueskyRunId]);
+    }, [directFound, blueskyRunId]);
 
     const isLoading = useMemo(() => {
         if (!hasRunId || tiledPath) return false;
-        return runQuery.isLoading || streamsQuery.isLoading || directQuery.isLoading;
-    }, [hasRunId, tiledPath, runQuery.isLoading, streamsQuery.isLoading, directQuery.isLoading]);
+        return runQuery.isLoading || directQuery.isLoading;
+    }, [hasRunId, tiledPath, runQuery.isLoading, directQuery.isLoading]);
 
     const error = useMemo(() => {
         if (!hasRunId) return 'Waiting for run ID';
         if (tiledPath || isLoading) return null;
         if (!runExists) return `Searching for run data... (Run ID: ${blueskyRunId})`;
-        if (streamsFailed && directQuery.isSuccess && !directQuery.data) {
+        if (directQuery.isSuccess && !directQuery.data) {
             return isRunFinished
                 ? 'Could not find primary data path for this run'
                 : `Waiting for scan data to be written... (Run ID: ${blueskyRunId})`;
         }
         return null;
-    }, [hasRunId, tiledPath, isLoading, runExists, streamsFailed, directQuery.isSuccess, directQuery.data, isRunFinished, blueskyRunId]);
+    }, [hasRunId, tiledPath, isLoading, runExists, directQuery.isSuccess, directQuery.data, isRunFinished, blueskyRunId]);
 
     const startCompletionPolling = useCallback((customPollingInterval?: number) => {
         const intervalId = setInterval(async () => {

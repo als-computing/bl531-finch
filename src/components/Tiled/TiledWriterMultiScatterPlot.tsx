@@ -19,6 +19,8 @@ type TiledWriterMultiScatterPlotProps = {
     showStatusText?: boolean;
     /** Title for the plot. */
     title?: string;
+    /** Explicit legend names for each trace, parallel to `blueskyRunIds`. */
+    traceNames?: string[];
 }
 
 export default function TiledWriterMultiScatterPlot({
@@ -29,7 +31,8 @@ export default function TiledWriterMultiScatterPlot({
     className,
     plotClassName,
     showStatusText = true,
-    title
+    title,
+    traceNames,
 }: TiledWriterMultiScatterPlotProps) {
     const { tiledPaths, isLoading, errors } = useTiledWriterScatterPlots(blueskyRunIds, { tiledBaseUrl });
 
@@ -43,12 +46,7 @@ export default function TiledWriterMultiScatterPlot({
     };
 
     return (
-        <>
-            {showStatusText && (
-                <p className="text-xs text-gray-600 mb-2">
-                    {getStatusText()}
-                </p>
-            )}
+       
             <TiledMultiScatterPlot
                 paths={tiledPaths}
                 tiledTrace={tiledTrace}
@@ -57,8 +55,9 @@ export default function TiledWriterMultiScatterPlot({
                 className={className}
                 plotClassName={plotClassName}
                 title={title}
-                shortPathNames={true}
+                shortPathNames={!traceNames}
+                traceNames={traceNames}
             />
-        </>
+        
     );
 }           
