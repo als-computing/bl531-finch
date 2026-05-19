@@ -46,6 +46,10 @@ export default function TiledMultiScatterPlot({ tiledTrace, paths, partition = 0
     const isLoading = results.some((r) => r.isLoading);
     const errors = results.filter((r) => r.error).map((r) => (r.error as Error).message);
 
+    // Collect available column names from the first loaded result that has data but is missing x or y.
+    const mismatchedResult = !isLoading ? results.find((r) => r.data && (!r.data[xName] || !r.data[yName])) : undefined;
+    const availableColumns = mismatchedResult ? Object.keys(mismatchedResult.data!) : null;
+
     const getStatusText = () => {
         if (paths.every((p) => p === null)) {
             return 'No data paths provided - waiting for data';
@@ -89,6 +93,19 @@ export default function TiledMultiScatterPlot({ tiledTrace, paths, partition = 0
                     {paths.every((p) => p === null) && <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
                         <p className="text-slate-500">No data paths provided - waiting for paths</p>
                     </div>}
+                    {availableColumns && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-90 z-10 gap-2 p-4">
+                            <p className="text-amber-600 font-medium text-sm">
+                                Column not found — <span className="font-mono">x="{xName}"</span> / <span className="font-mono">y="{yName}"</span>. Check your axis values.
+                            </p>
+                            <p className="text-slate-500 text-xs">Available columns:</p>
+                            <div className="flex flex-wrap gap-1 justify-center max-w-md">
+                                {availableColumns.map((col) => (
+                                    <span key={col} className="bg-slate-100 border border-slate-300 rounded px-2 py-0.5 text-xs font-mono text-slate-700">{col}</span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </>
         }
             <PlotlyScatter

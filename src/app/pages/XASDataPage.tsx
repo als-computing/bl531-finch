@@ -27,6 +27,9 @@ function itemLabel(meta: Record<string, unknown> | undefined, id: string): strin
 export default function XASDataPage() {
     const [blueskyIds, setBlueskyIds] = useState<string[]>([]);
     const [traceNames, setTraceNames] = useState<Record<string, string>>({});
+    const [plotTitle, setPlotTitle] = useState('');
+    const [xAxis, setXAxis] = useState('seq_num');
+    const [yAxis, setYAxis] = useState('rand');
     const handleDataSelect = (data: TiledItemSelectionData) => {
         console.log("Selected data from Tiled:", data);
         setBlueskyIds((prev) => [...prev, data.id]);
@@ -59,21 +62,58 @@ export default function XASDataPage() {
         fetchData();
     }, []);
     return (
-        <article className="h-full flex space-x-8 p-4 bg-slate-100 text-slate-700">
+        <article className="h-full flex space-x-8 p-4 bg-slate-100 text-slate-700 rounded-md shadow-md">
 
-            <div className="flex flex-col">
+            <div className="flex flex-col h-full overflow-auto border-r-4 border-slate-300 pr-8">
 
                 {/* Plot Settings Inputs */}
-                <section>
-                    <span className="flex space-x-4 items-center">
+                <section className="mb-8 max-w-72">
+                    <span className="flex space-x-4 items-center mb-4">
                         <Sliders size={20} className="inline mr-1" />
-                        <h3> Plot Settings</h3>
+                        <h3>Plot Settings</h3>
                     </span>
+                    <div className="flex flex-col gap-2 text-sm">
+                        <label className="flex items-center gap-2">
+                            <span className="w-12 text-slate-500">Title</span>
+                            <input
+                                type="text"
+                                value={plotTitle}
+                                onChange={(e) => setPlotTitle(e.target.value)}
+                                placeholder="Plot title"
+                                className="border border-gray-300 rounded px-2 py-0.5 flex-1"
+                            />
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <span className="w-12 text-slate-500">X Axis</span>
+                            <input
+                                type="text"
+                                value={xAxis}
+                                onChange={(e) => setXAxis(e.target.value)}
+                                placeholder="Column name"
+                                className="border border-gray-300 rounded px-2 py-0.5 flex-1"
+                                data-tooltip-id="axis-input-tooltip"
+                                data-tooltip-content="The column name from the Tiled tabular data to plot on the X axis. An exact string match is required."
+                            />
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <span className="w-12 text-slate-500">Y Axis</span>
+                            <input
+                                type="text"
+                                value={yAxis}
+                                onChange={(e) => setYAxis(e.target.value)}
+                                placeholder="Column name"
+                                className="border border-gray-300 rounded px-2 py-0.5 flex-1"
+                                data-tooltip-id="axis-input-tooltip"
+                                data-tooltip-content="The column name from the Tiled tabular data to plot on the Y axis. An exact string match is required."
+                            />
+                        </label>
+                        <Tooltip id="axis-input-tooltip" place="right" className="max-w-56 text-xs" />
+                    </div>
                 </section>
         
                 {/* Data Selection Table */}
                 <section>
-                    <span className="flex space-x-4 items-center">
+                    <span className="flex space-x-4 items-center mb-4">
                         <PaintBrush size={20} className="inline mr-1" />
                         <h3> Data Picker</h3>
                     </span>
@@ -205,9 +245,10 @@ export default function XASDataPage() {
 
             {/* Scatter Plot */}
             <TiledWriterMultiScatterPlot
-                tiledTrace={{ x: 'seq_num', y: 'rand' }}
+                tiledTrace={{ x: xAxis, y: yAxis }}
                 blueskyRunIds={blueskyIds}
                 traceNames={blueskyIds.map((id) => traceNames[id] || id.slice(0, 4))}
+                title={plotTitle || undefined}
                 className="h-full"
                 plotClassName="h-full"
             />
