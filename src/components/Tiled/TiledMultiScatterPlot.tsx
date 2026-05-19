@@ -97,7 +97,8 @@ export default function TiledMultiScatterPlot({ tiledTrace, paths, partition = 0
                 yAxisTitle={yName}
                 className={plotClassName}
                 title={title}
-                layout={{ plot_bgcolor: '#ffffff', paper_bgcolor: '#ffffff' }}
+                layout={{ plot_bgcolor: '#ffffff', paper_bgcolor: '#ffffff', legend: { x: 0.05, y:1, xanchor: 'left', yanchor: 'top' }, margin: { r: 50, t: 40 }, modebar: { orientation: 'v' } }}
+                config={{ editable: true, displayModeBar: true }}
             />
         </div>
     );

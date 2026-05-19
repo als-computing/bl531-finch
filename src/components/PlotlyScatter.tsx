@@ -24,6 +24,8 @@ export type PlotlyScatterProps = {
   className?: string;
   /** Plotly layout overrides — merged on top of defaults, user values take precedence. */
   layout?: Partial<Layout>;
+  /** Plotly configuration options. */
+  config?: Partial<PlotParams['config']>;
 };
 
 const sampleData: PlotParams['data'] = [
@@ -106,7 +108,7 @@ const PlotlyScatter = React.memo(function PlotlyScatter({
           },
           ...layout,
         }}
-        config={{ responsive: true }}
+        config={{ responsive: true, ...props.config }}
       />
     </div>
   );

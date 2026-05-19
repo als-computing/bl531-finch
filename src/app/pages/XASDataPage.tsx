@@ -59,17 +59,17 @@ export default function XASDataPage() {
         fetchData();
     }, []);
     return (
-        <div className="h-[48rem] flex bg-slate-100">
+        <div className="h-[48rem] flex space-x-8 p-4 bg-slate-100">
             {/* <Tiled singleColumnMode={true} onSelectCallback={handleDataSelect}/> */}
                         {/* <Tiled singleColumnMode={true} backgroundClassName="h-[40rem] min-w-96 w-36" contentClassName="h-full w-full"/> */}
-            <section className="flex flex-col h-full bg-white text-slate-800 border border-slate-300 rounded-md m-8">
-                <span className="w-full flex">
+            <section className="flex flex-col h-full bg-white text-slate-800 border border-slate-300 rounded-md pb-2">
+                <span className="w-full flex text-slate-600 font-light py-2">
                     <p className="w-1/2 text-center">All Data</p>
                     <p className="w-1/2 text-center">Selected Data</p>
                 </span>
                 <article className="flex flex-grow min-h-0">
                     {/* All Data For selection */}
-                    <ul className="w-72 h-full overflow-y-auto rounded-scrollbar">
+                    <ul className="w-72 h-full overflow-y-auto rounded-scrollbar border-r-2 borer-slate-300 pr-2">
                         {searchResults && searchResults.data.map((item) => {
                             const meta = item?.attributes?.metadata;
                             const startTime = meta?.start?.time;
@@ -121,7 +121,7 @@ export default function XASDataPage() {
                         }}
                     />
                     {/* Currently Selected items */}
-                    <ul className="w-72 h-full overflow-y-auto rounded-scrollbar text-slate-800">
+                    <ul className="w-72 h-full overflow-y-auto rounded-scrollbar text-slate-800 pl-2">
                         {blueskyIds.length === 0 && (
                             <li className="p-2 text-sm text-gray-300">Select a data set...</li>
                         )}
@@ -189,8 +189,8 @@ export default function XASDataPage() {
                 tiledTrace={{ x: 'seq_num', y: 'rand' }}
                 blueskyRunIds={blueskyIds}
                 traceNames={blueskyIds.map((id) => traceNames[id] || id.slice(0, 4))}
-                className="h-full border border-red-500"
-                plotClassName="h-full border border-green-500"
+                className="h-full"
+                plotClassName="h-full"
             />
         </div>
     )

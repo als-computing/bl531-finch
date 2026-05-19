@@ -48,7 +48,6 @@ export default function ExperimentHistory({planName, className, metadataFulltext
             };
             try {
                 const results:TiledSearchResult | null = await getSearchResults(searchConfig);
-                console.log("ExperimentHistory search results:", results);
                 setSearchResults(results);
             } catch (error) {
                 console.error("Error fetching ExperimentHistory data:", error);
