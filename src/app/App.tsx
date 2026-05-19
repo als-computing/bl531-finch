@@ -11,7 +11,7 @@ import ServiceStatusPage from './pages/ServiceStatusPage';
 import EnergyScanPage from './pages/EnergyScanPage';
 import AngleScanPage from './pages/AngleScanPage';
 import XASScanPage from './pages/XASScanPage';
-
+import XASDataPage from './pages/XASDataPage';
 import HubAppLayout from '@/components/HubAppLayout';
 
 import { RouteItem } from '@/types/navigationRouterTypes';
@@ -47,7 +47,7 @@ function App() {
       isBackgroundTransparent: true
     },
     {
-      element: <TiledHeatmapSelector />,
+      element: <XASDataPage />,
       path: '/data',
       label: 'Data',
       icon: <ImageSquare size={32} />,
