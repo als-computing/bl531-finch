@@ -397,14 +397,6 @@ export default function ExperimentXASScan({
                     
                     <div className="flex flex-col min-w-96 flex-grow border-l-2 border-slate-300 pl-4  min-h-[45rem]">
                         <span className="flex flex-start gap-8">
-                            {/* <button
-                                className="flex flex-col items-center gap-1 p-2 transition-colors text-sky-800"
-                                title="Detector files"
-                                disabled={true}
-                            >
-                                <Images size={24} weight="regular" />
-                                <span className="text-xs font-light">Heatmap</span>
-                            </button> */}
                             <button
                                 className="flex flex-col items-center gap-1 p-2 transition-colors text-sky-800"
                                 title="Line Plot"
@@ -428,7 +420,7 @@ export default function ExperimentXASScan({
                             <TiledWriterScatterPlot 
                                 key={blueskyRunId}
                                 blueskyRunId={blueskyRunId}
-                                tiledTrace={{ x: "seq_num", y: "rand" }}
+                                tiledTrace={{ x: import.meta.env.VITE_XAS_SCATTER_X ?? "mono_energy_energy_eV", y: import.meta.env.VITE_XAS_SCATTER_Y ?? "amptek_fluo_roi_sum" }}
                                 className="max-h-[40rem] h-full"
                                 plotClassName="h-[calc(100%-2rem)]"
                                 showStatusText={false}

@@ -28,12 +28,8 @@ export default function XASDataPage() {
     const [blueskyIds, setBlueskyIds] = useState<string[]>([]);
     const [traceNames, setTraceNames] = useState<Record<string, string>>({});
     const [plotTitle, setPlotTitle] = useState('');
-    const [xAxis, setXAxis] = useState('seq_num');
-    const [yAxis, setYAxis] = useState('rand');
-    const handleDataSelect = (data: TiledItemSelectionData) => {
-        console.log("Selected data from Tiled:", data);
-        setBlueskyIds((prev) => [...prev, data.id]);
-    };
+    const [xAxis, setXAxis] = useState(import.meta.env.VITE_XAS_SCATTER_X ?? "mono_energy_energy_eV");
+    const [yAxis, setYAxis] = useState(import.meta.env.VITE_XAS_SCATTER_Y ?? "amptek_fluo_roi_sum");
     const handleIDSelect = (id: string) => {
         setBlueskyIds((prev) => [...prev, id]);
     };
@@ -64,7 +60,7 @@ export default function XASDataPage() {
     return (
         <article className="h-full flex space-x-8 p-4 bg-slate-100 text-slate-700 rounded-md shadow-md">
 
-            <div className="flex flex-col h-full overflow-auto border-r-4 border-slate-300 pr-8">
+            <div className="flex flex-col h-full overflow-auto border-r-2 border-slate-300 pr-8">
 
                 {/* Plot Settings Inputs */}
                 <section className="mb-8 max-w-72">
@@ -178,7 +174,7 @@ export default function XASDataPage() {
                             {/* Currently Selected items */}
                             <ul className="w-72 h-full overflow-y-auto rounded-scrollbar text-slate-800 pl-2">
                                 {blueskyIds.length === 0 && (
-                                    <li className="p-2 text-sm text-gray-600 animate-pulse">Select a data set...</li>
+                                    <li className="p-2 text-sm text-sky-900 animate-pulse">Select a data set...</li>
                                 )}
                                 {blueskyIds.map((id) => {
                                     const item = searchResults?.data.find((r) => r.id === id);
