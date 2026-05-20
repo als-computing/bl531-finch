@@ -245,7 +245,7 @@ export default function XASDataPage() {
                 blueskyRunIds={blueskyIds}
                 traceNames={blueskyIds.map((id) => traceNames[id] || id.slice(0, 4))}
                 title={plotTitle || undefined}
-                className="h-full"
+                className="h-full border-2 border-black/20"
                 plotClassName="h-full"
             />
         </article>
