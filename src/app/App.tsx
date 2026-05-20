@@ -16,10 +16,12 @@ import HubAppLayout from '@/components/HubAppLayout';
 
 import { RouteItem } from '@/types/navigationRouterTypes';
 
-import { House, Joystick, ImageSquare, StackPlus, Camera, GoogleLogo, Terminal, Barcode } from "@phosphor-icons/react";
+import { House, Joystick, ImageSquare, StackPlus, Camera, GoogleLogo, Terminal, Barcode, BookOpenText } from "@phosphor-icons/react";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { finchIcons } from '@/assets/icons';
 import TiledHeatmapSelector from '@/features/TiledHeatmapSelector';
+import TiledPage from './pages/TiledPage';
+import { Book } from 'lucide-react';
 
 const queryClient = new QueryClient();
 
@@ -81,6 +83,13 @@ function App() {
       icon: <Terminal size={32} />,
       isBackgroundTransparent: true,
     },
+    {
+      element: <TiledPage />,
+      path: '/tiled',
+      label: 'Tiled',
+      icon: <BookOpenText size={32} />,
+      isBackgroundTransparent: true,
+    }
     // {
     //   element: <EnergyScanPage />,
     //   path: '/energy-scan',

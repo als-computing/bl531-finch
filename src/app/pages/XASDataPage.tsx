@@ -58,7 +58,7 @@ export default function XASDataPage() {
         fetchData();
     }, []);
     return (
-        <article className="h-full flex space-x-8 p-4 bg-slate-100 text-slate-700 rounded-md shadow-md">
+        <article className="h-full flex space-x-8 p-4 bg-slate-200 text-slate-700 rounded-md shadow-md">
 
             <div className="flex flex-col h-full overflow-auto border-r-2 border-slate-300 pr-8">
 
