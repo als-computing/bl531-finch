@@ -117,8 +117,8 @@ export default function TiledMultiScatterPlot({ tiledTrace, paths, partition = 0
                 className={plotClassName}
                 title={title}
                 layout={{ plot_bgcolor: '#ffffff', paper_bgcolor: '#ffffff', legend: { x: 0.05, y:1, xanchor: 'left', yanchor: 'top' }, margin: { r: 50, t: 70 }, modebar: { orientation: 'v' } }}
-                xAxisLayout={{ showline: true, linecolor: 'black', linewidth: 3, mirror: true, gridcolor: '#c9c9c9', gridwidth: 1.5, tickfont: { size: 18, color: '#111111' }, ticks: 'outside', ticklen: 6, tickcolor: 'black', tickwidth: 1.5 }}
-                yAxisLayout={{ showline: true, linecolor: 'black', linewidth: 3, mirror: true, gridcolor: '#c9c9c9', gridwidth: 1.5, tickfont: { size: 18, color: '#111111' }, ticks: 'outside', ticklen: 6, tickcolor: 'black', tickwidth: 1.5 }}
+                xAxisLayout={{ showline: true, linecolor: 'black', linewidth: 1.5, mirror: true, gridcolor: '#c9c9c9', gridwidth: 1.5, tickfont: { size: 18, color: '#111111' }, ticks: 'outside', ticklen: 6, tickcolor: 'black', tickwidth: 1.5 }}
+                yAxisLayout={{ showline: true, linecolor: 'black', linewidth: 1.5, mirror: true, gridcolor: '#c9c9c9', gridwidth: 1.5, tickfont: { size: 18, color: '#111111' }, ticks: 'outside', ticklen: 6, tickcolor: 'black', tickwidth: 1.5 }}
                 config={{ editable: true, displayModeBar: true }}
             />
         </div>

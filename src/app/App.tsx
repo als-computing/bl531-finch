@@ -13,10 +13,11 @@ import AngleScanPage from './pages/AngleScanPage';
 import XASScanPage from './pages/XASScanPage';
 import XASDataPage from './pages/XASDataPage';
 import HubAppLayout from '@/components/HubAppLayout';
+import XASAlignPage from './pages/XASAlignPage';
 
 import { RouteItem } from '@/types/navigationRouterTypes';
 
-import { House, Joystick, ImageSquare, StackPlus, Camera, GoogleLogo, Terminal, Barcode, BookOpenText } from "@phosphor-icons/react";
+import { House, Joystick, ImageSquare, StackPlus, Camera, GoogleLogo, Terminal, Barcode, BookOpenText, Compass } from "@phosphor-icons/react";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { finchIcons } from '@/assets/icons';
 import TiledHeatmapSelector from '@/features/TiledHeatmapSelector';
@@ -34,6 +35,12 @@ function App() {
       icon: <House size={32}/>, 
       isBackgroundTransparent: true
     },
+    {
+      element:<XASAlignPage />, 
+      path: '/xas-align', 
+      label: 'XAS Align', 
+      icon: <Compass size={32} />, 
+      isBackgroundTransparent: true},
     {
       element: <XASScanPage />,
       path: '/xas-scan',

@@ -223,6 +223,7 @@ export default function XASDataPage() {
                                         <div className="text-xs space-y-1 max-w-56">
                                             <p className="font-semibold text-white truncate">{d.id}</p>
                                             <hr className="border-slate-500" />
+                                            {d.sample && <Row label="Sample" value={d.sample} />}
                                             {d.scanId != null    && <Row label="Scan ID"   value={d.scanId} />}
                                             {d.plan              && <Row label="Plan"      value={d.plan} />}
                                             {d.detectors         && <Row label="Detectors" value={d.detectors} />}
