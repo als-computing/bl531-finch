@@ -19,8 +19,9 @@ function itemLabel(meta: Record<string, unknown> | undefined, id: string): strin
     const time = start?.time as number | undefined;
     const datePart = time ? dayjs.unix(time).format('MM/DD') : null;
     const timePart = time ? dayjs.unix(time).format('HH:mm') : null;
+    const sample = start?.sample as string | undefined;
     const userMeta = (start?.sample_name ?? start?.user ?? start?.operator ?? start?.proposal_id) as string | undefined;
-    const parts = [datePart, timePart, userMeta, id].filter(Boolean);
+    const parts = [datePart, timePart, sample, userMeta, id].filter(Boolean);
     return parts.join('  ');
 }
 
@@ -128,6 +129,7 @@ export default function XASDataPage() {
                                     const tooltipContent = JSON.stringify({
                                         id: item.id,
                                         scanId: meta?.start?.scan_id,
+                                        sample: (meta?.start as { sample?: string } | undefined)?.sample,
                                         plan: meta?.start?.plan_name,
                                         detectors: meta?.start?.detectors?.join(', '),
                                         numPoints: meta?.start?.num_points,
@@ -160,6 +162,7 @@ export default function XASDataPage() {
                                         <div className="text-xs space-y-1 max-w-56">
                                             <p className="font-semibold text-white truncate">{d.id}</p>
                                             <hr className="border-slate-500" />
+                                            {d.sample && <Row label="Sample" value={d.sample} />}
                                             {d.scanId != null    && <Row label="Scan ID"    value={d.scanId} />}
                                             {d.plan              && <Row label="Plan"       value={d.plan} />}
                                             {d.detectors         && <Row label="Detectors"  value={d.detectors} />}
@@ -183,6 +186,7 @@ export default function XASDataPage() {
                                     const endTime = meta?.stop?.time;
                                     const tooltipContent = JSON.stringify({
                                         id,
+                                        sample: (meta?.start as { sample?: string } | undefined)?.sample,
                                         scanId: meta?.start?.scan_id,
                                         plan: meta?.start?.plan_name,
                                         detectors: meta?.start?.detectors?.join(', '),

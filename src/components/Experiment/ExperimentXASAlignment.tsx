@@ -180,11 +180,11 @@ export default function ExperimentXASAlignment({
     };
 
     const zTrace = {
-        x: import.meta.env.VITE_ALIGNMENT_Z_X ?? "sim_motor",
+        x: import.meta.env.VITE_ALIGNMENT_Z_X ?? "hexapod_motor_Tz_readback",
         y: import.meta.env.VITE_ALIGNMENT_Z_Y ?? "amptek_fluo_roi_sum",
     };
     const yTrace = {
-        x: import.meta.env.VITE_ALIGNMENT_Y_X ?? "sim_motor",
+        x: import.meta.env.VITE_ALIGNMENT_Y_X ?? "hexapod_motor_Ty_readback",
         y: import.meta.env.VITE_ALIGNMENT_Y_Y ?? "amptek_fluo_roi_sum",
     };
 
